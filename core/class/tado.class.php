@@ -310,7 +310,9 @@ class tado extends eqLogic {
 					$this->checkAndUpdateCmd('acSwing', $zoneState->setting->swing);
 				}
 				$this->checkAndUpdateCmd('targetTemperature', ($zoneState->setting->power == "ON") ? $zoneState->setting->temperature->celsius : 0);
-				$this->checkAndUpdateCmd('heatingPower', $zoneState->activityDataPoints->heatingPower->percentage);
+				if (isset($zoneState->activityDataPoints->heatingPower->percentage)) {
+					$this->checkAndUpdateCmd('heatingPower', $zoneState->activityDataPoints->heatingPower->percentage);
+				}
 				$this->checkAndUpdateCmd('openWindow', (isset($zoneState->openWindowDetected) && $zoneState->openWindowDetected) || is_object($zoneState->openWindow));
 				break;
 			case 'mobileDevice':
