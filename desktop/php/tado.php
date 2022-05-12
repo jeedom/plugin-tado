@@ -59,6 +59,7 @@ foreach ($eqLogics as $eqLogic) {
 			foreach ($homes as $eqLogic) {
 				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
 				echo '<div class="eqLogicDisplayCard cursor ' . $opacity . '" data-eqLogic_id="' . $eqLogic->getId() . '">';
+				echo '<br>';
 				echo '<i class="fas fa-home"></i>';
 				echo '<br>';
 				echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
@@ -264,18 +265,6 @@ foreach ($eqLogics as $eqLogic) {
 							</div>
 							<div id="openWindowConfig">
 								<legend><i class="fas fa-door-open"></i> {{Fenêtres}}</legend>
-								<div class="form-group">
-									<label class="col-sm-3 control-label">{{Detection de fenêtres ouvertes par Tado}}</label>
-									<div class="col-sm-3">
-										<select id="sel_openWindowDetection" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="openWindowDetectionEnabled">
-											<option value="no">{{Désactivé}}</option>
-											<option value="yes">{{Activé}}</option>
-										</select>
-									</div>
-									<div class="col-sm-3">
-										<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="openWindowTimeout" placeholder="{{Timeout (minutes)}}" />
-									</div>
-								</div>
 								<div class="form-group">
 									<label class="col-sm-3 control-label">{{Auto assist fenêtres ouvertes}}</label>
 									<div class="col-sm-3">

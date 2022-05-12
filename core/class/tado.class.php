@@ -60,7 +60,7 @@ class tado extends eqLogic {
 
 	public static function syncEqLogicWithTado() {
 		$conf_tokens = config::byKey('tadoTokens', 'tado');
-		foreach ($conf_tokens as $user => $conf_token) {
+		foreach ($conf_tokens as $user) {
 			$me = tado::getApiHandler($user)->getMe();
 			foreach ($me->homes as $home) {
 				$home_id = $home->id;
@@ -68,8 +68,9 @@ class tado extends eqLogic {
 				if (!is_object($eqLogic)) {
 					$eqLogic = new tado();
 					$eqLogic->setIsVisible(1);
+					$eqLogic->setIsEnable(1);
 					$eqLogic->setConfiguration('user', $user);
-					$eqLogic->setName("$home->name");
+					$eqLogic->setName($home->name);
 					$eqLogic->setEqType_name('tado');
 					$eqLogic->setCategory('heating', 1);
 					$eqLogic->setLogicalId($home_id . "_HOME");
@@ -77,13 +78,14 @@ class tado extends eqLogic {
 					$eqLogic->setConfiguration('homeId', $home_id);
 					$eqLogic->save();
 				}
-				$eqLogic->setIsEnable(1);
+				$eqLogic->setEqLogicConfig();
 				$eqLogic->syncData();
 
 				$eqLogic = eqLogic::byLogicalId($home_id . "_WEATHER", 'tado');
 				if (!is_object($eqLogic)) {
 					$eqLogic = new tado();
 					$eqLogic->setIsVisible(1);
+					$eqLogic->setIsEnable(1);
 					$eqLogic->setConfiguration('user', $user);
 					$eqLogic->setName("Météo - $home->name");
 					$eqLogic->setEqType_name('tado');
@@ -93,7 +95,7 @@ class tado extends eqLogic {
 					$eqLogic->setConfiguration('homeId', $home_id);
 					$eqLogic->save();
 				}
-				$eqLogic->setIsEnable(1);
+				$eqLogic->setEqLogicConfig();
 				$eqLogic->syncData();
 
 				$zones = tado::getApiHandler($user)->listZones($home_id);
@@ -102,6 +104,7 @@ class tado extends eqLogic {
 					if (!is_object($eqLogic)) {
 						$eqLogic = new tado();
 						$eqLogic->setIsVisible(1);
+						$eqLogic->setIsEnable(1);
 						$eqLogic->setConfiguration('user', $user);
 						$eqLogic->setName("$zone->name - $home->name");
 						$eqLogic->setEqType_name('tado');
@@ -112,7 +115,6 @@ class tado extends eqLogic {
 						$eqLogic->setConfiguration('zoneId', $zone->id);
 						$eqLogic->save();
 					}
-					$eqLogic->setIsEnable(1);
 					$deviceList = array();
 					foreach ($zone->devices as $device) {
 						$deviceList[] = array('deviceType' => $device->deviceType, 'shortSerialNo' => $device->shortSerialNo);
@@ -120,6 +122,7 @@ class tado extends eqLogic {
 					$eqLogic->syncOpenWindowState($zone);
 					$eqLogic->setConfiguration('devices', $deviceList);
 					$eqLogic->setConfiguration('capabilities', tado::getApiHandler($user)->getZoneCapabilities($home_id, $zone->id));
+					$eqLogic->setEqLogicConfig();
 					$eqLogic->syncData();
 				}
 
@@ -129,6 +132,7 @@ class tado extends eqLogic {
 					if (!is_object($eqLogic)) {
 						$eqLogic = new tado();
 						$eqLogic->setIsVisible(0);
+						$eqLogic->setIsEnable(1);
 						$eqLogic->setConfiguration('user', $user);
 						$eqLogic->setName("$device->shortSerialNo - $home->name");
 						$eqLogic->setEqType_name('tado');
@@ -139,10 +143,10 @@ class tado extends eqLogic {
 						$eqLogic->setConfiguration('deviceId', $device->shortSerialNo);
 						$eqLogic->save();
 					}
-					$eqLogic->setIsEnable(1);
 					$eqLogic->setConfiguration('battery_type', self::getGConfig($device->deviceType . '::bat_type'));
 					$eqLogic->setConfiguration('currentFwVersion', $device->currentFwVersion);
 					$eqLogic->setConfiguration('characteristics', $device->characteristics);
+					$eqLogic->setEqLogicConfig();
 					$eqLogic->syncData();
 				}
 
@@ -152,6 +156,7 @@ class tado extends eqLogic {
 					if (!is_object($eqLogic)) {
 						$eqLogic = new tado();
 						$eqLogic->setIsVisible(1);
+						$eqLogic->setIsEnable(1);
 						$eqLogic->setConfiguration('user', $user);
 						$eqLogic->setName("$mobileDevice->name - $home->name");
 						$eqLogic->setEqType_name('tado');
@@ -162,29 +167,17 @@ class tado extends eqLogic {
 						$eqLogic->setConfiguration('mobileDeviceId', $mobileDevice->id);
 						$eqLogic->save();
 					}
-					$eqLogic->setIsEnable(1);
 					$eqLogic->setConfiguration('deviceMetadata', $mobileDevice->deviceMetadata);
+					$eqLogic->setEqLogicConfig();
 					$eqLogic->syncData();
 				}
 			}
 		}
 	}
 
-	public static function byType($_tado_type = '', $_onlyEnable = false) {
-		$eqLogics = eqLogic::byType('tado', $_onlyEnable);
-		$return = array();
-		foreach ($eqLogics as $eqLogic) {
-			if ($eqLogic->getConfiguration('eqLogicType') == $_tado_type) {
-				$return[] = $eqLogic;
-			}
-		}
-		return $return;
-	}
-
 	public static function byUser($_tado_user = '', $_onlyEnable = false) {
-		$eqLogics = eqLogic::byType('tado', $_onlyEnable);
 		$return = array();
-		foreach ($eqLogics as $eqLogic) {
+		foreach ((eqLogic::byType('tado', $_onlyEnable)) as $eqLogic) {
 			if ($eqLogic->getConfiguration('user') == $_tado_user) {
 				$return[] = $eqLogic;
 			}
@@ -192,44 +185,28 @@ class tado extends eqLogic {
 		return $return;
 	}
 
-	public static function cron() {
-		$eqLogics = eqLogic::byType('tado');
-
-		foreach ($eqLogics as $eqLogic) {
-			$eqLogicType = $eqLogic->getConfiguration('eqLogicType');
-			if ($eqLogicType == 'mobileDevice' || $eqLogicType == 'home') {
+	public static function cron5() {
+		foreach ((eqLogic::byType('tado')) as $eqLogic) {
+			if ($eqLogic->getConfiguration('eqLogicType') == 'zone') {
 				$eqLogic->syncData();
 			}
-		}
-	}
-
-	public static function cron5() {
-		$eqLogics = eqLogic::byType('tado');
-
-		foreach ($eqLogics as $eqLogic) {
-			$eqLogicType = $eqLogic->getConfiguration('eqLogicType');
-			if ($eqLogicType == 'zone') {
+			if ($eqLogic->getConfiguration('eqLogicType') == 'mobileDevice' || $eqLogic->getConfiguration('eqLogicType') == 'home') {
 				$eqLogic->syncData();
 			}
 		}
 	}
 
 	public static function cron15() {
-		$eqLogics = eqLogic::byType('tado');
-
-		foreach ($eqLogics as $eqLogic) {
-			$eqLogicType = $eqLogic->getConfiguration('eqLogicType');
-			if ($eqLogicType == 'weather' || $eqLogicType == 'device') {
+		foreach ((eqLogic::byType('tado')) as $eqLogic) {
+			if ($eqLogic->getConfiguration('eqLogicType') == 'weather' || $eqLogic->getConfiguration('eqLogicType') == 'device') {
 				$eqLogic->syncData();
 			}
 		}
 	}
 
-
 	/*     * *********************Méthodes d'instance************************* */
 	public function getHome() {
-		$eqLogics = eqLogic::byType('tado');
-		foreach ($eqLogics as $eqLogic) {
+		foreach ((eqLogic::byType('tado')) as $eqLogic) {
 			if ($eqLogic->getConfiguration('eqLogicType') == 'home' && $this->getConfiguration('homeId') == $eqLogic->getConfiguration('homeId')) {
 				$home = $eqLogic;
 			}
@@ -238,9 +215,8 @@ class tado extends eqLogic {
 	}
 
 	public function getZones() {
-		$eqLogics = eqLogic::byType('tado');
 		$zones = array();
-		foreach ($eqLogics as $eqLogic) {
+		foreach ((eqLogic::byType('tado')) as $eqLogic) {
 			if ($eqLogic->getConfiguration('eqLogicType') == 'zone' && $this->getConfiguration('homeId') == $eqLogic->getConfiguration('homeId')) {
 				$zones[] = $eqLogic;
 			}
@@ -249,9 +225,8 @@ class tado extends eqLogic {
 	}
 
 	public function getMobileDevices() {
-		$eqLogics = eqLogic::byType('tado');
 		$mobileDevices = array();
-		foreach ($eqLogics as $eqLogic) {
+		foreach ((eqLogic::byType('tado')) as $eqLogic) {
 			if ($eqLogic->getConfiguration('eqLogicType') == 'mobileDevice' && $this->getConfiguration('homeId') == $eqLogic->getConfiguration('homeId')) {
 				$mobileDevices[] = $eqLogic;
 			}
@@ -260,9 +235,8 @@ class tado extends eqLogic {
 	}
 
 	public function getDevices() {
-		$eqLogics = eqLogic::byType('tado');
 		$devices = array();
-		foreach ($eqLogics as $eqLogic) {
+		foreach ((eqLogic::byType('tado')) as $eqLogic) {
 			if (($eqLogic->getConfiguration('eqLogicType') == 'device') && $this->getConfiguration('homeId') == $eqLogic->getConfiguration('homeId')) {
 				$devices[] = $eqLogic;
 			}
@@ -271,8 +245,7 @@ class tado extends eqLogic {
 	}
 
 	public function getWeather() {
-		$eqLogics = eqLogic::byType('tado');
-		foreach ($eqLogics as $eqLogic) {
+		foreach ((eqLogic::byType('tado')) as $eqLogic) {
 			if ($eqLogic->getConfiguration('eqLogicType') == 'weather' && $this->getConfiguration('homeId') == $eqLogic->getConfiguration('homeId')) {
 				$weather = $eqLogic;
 			}
@@ -285,172 +258,62 @@ class tado extends eqLogic {
 			return;
 		}
 		try {
-			$me = tado::getApiHandler($this->getConfiguration('user'))->getMe();
+			tado::getApiHandler($this->getConfiguration('user'))->getMe();
 		} catch (Exception $e) {
 			log::add('tado', 'debug', $e->getMessage());
 			log::add('tado', 'error', 'Connexion to Tado servers seems to be broken. Please try to re-login from plugin configuration page.');
 			return;
 		}
 		$home_id = $this->getConfiguration('homeId');
-
 		switch ($this->getConfiguration('eqLogicType')) {
 			case 'home':
 				$homeState = tado::getApiHandler($this->getConfiguration('user'))->getHomeState($home_id);
-				log::add('tado', 'info', __METHOD__ . ' - homeState : ' . json_encode($homeState));
-				if (isset($homeState->showHomePresenceSwitchButton)) {
-					if ($homeState->showHomePresenceSwitchButton && $homeState->presence == "AWAY" && $this->getConfiguration('presenceModeAssist') == 'yes') {
-						tado::getApiHandler($this->getConfiguration('user'))->updateHomePresence(json_encode(array('homePresence' => "HOME")), $home_id);
-						log::add('tado', 'info', __METHOD__ . ' - Automatic HOME mode switch');
-					} elseif ($homeState->showHomePresenceSwitchButton && $homeState->presence == "HOME" && $this->getConfiguration('presenceModeAssist') == 'yes') {
-						tado::getApiHandler($this->getConfiguration('user'))->updateHomePresence(json_encode(array('homePresence' => "AWAY")), $home_id);
-						log::add('tado', 'info', __METHOD__ . ' - Automatic AWAY mode switch');
-					}
-				}
-				foreach ($this->getCmd() as $eqLogic_cmd) {
-					switch ($eqLogic_cmd->getLogicalId()) {
-						case 'presence':
-							$value = $homeState->presence == "HOME" ? true : false;
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value);
-							break;
-					}
-				}
+				$this->checkAndUpdateCmd('presence', ($homeState->presence == "HOME") ? true : false);
 				break;
-
 			case 'weather':
 				$weather = tado::getApiHandler($this->getConfiguration('user'))->getHomeWeather($home_id);
-				foreach ($this->getCmd() as $eqLogic_cmd) {
-					switch ($eqLogic_cmd->getLogicalId()) {
-						case 'solarIntensity':
-							$value = $weather->solarIntensity->percentage;
-							$collectDate = date('Y-m-d H:i:s', strtotime($weather->solarIntensity->timestamp));
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value, $collectDate);
-							break;
-						case 'temperature':
-							$value = $weather->outsideTemperature->celsius;
-							$collectDate = date('Y-m-d H:i:s', strtotime($weather->outsideTemperature->timestamp));
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value, $collectDate);
-							break;
-						case 'weatherState':
-							$value = $weather->weatherState->value;
-							$collectDate = date('Y-m-d H:i:s', strtotime($weather->weatherState->timestamp));
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value, $collectDate);
-							break;
-					}
-				}
+				$this->checkAndUpdateCmd('solarIntensity', $weather->solarIntensity->percentage, date('Y-m-d H:i:s', strtotime($weather->solarIntensity->timestamp)));
+				$this->checkAndUpdateCmd('temperature', $weather->outsideTemperature->celsius, date('Y-m-d H:i:s', strtotime($weather->outsideTemperature->timestamp)));
+				$this->checkAndUpdateCmd('weatherState', $weather->weatherState->value, date('Y-m-d H:i:s', strtotime($weather->weatherState->timestamp)));
 				break;
 			case 'zone':
-				$zone_id = $this->getConfiguration('zoneId');
-				$zoneState = tado::getApiHandler($this->getConfiguration('user'))->getZoneState($home_id, $zone_id);
-				$zoneDetails = tado::getApiHandler($this->getConfiguration('user'))->getZoneDetails($home_id, $zone_id);
+				$zoneState = tado::getApiHandler($this->getConfiguration('user'))->getZoneState($home_id, $this->getConfiguration('zoneId'));
+				$zoneDetails = tado::getApiHandler($this->getConfiguration('user'))->getZoneDetails($home_id, $this->getConfiguration('zoneId'));
 				$this->syncOpenWindowState($zoneDetails);
 				log::add('tado', 'info', __METHOD__ . ' - zoneState : ' . json_encode($zoneState));
 				if (isset($zoneState->openWindowDetected) && $zoneState->openWindowDetected && $this->getConfiguration('openWindowDetectionAssist') == 'yes') {
 					tado::getApiHandler($this->getConfiguration('user'))->activateOpenWindow($home_id, $zone_id);
 				}
-				foreach ($this->getCmd() as $eqLogic_cmd) {
-					switch ($eqLogic_cmd->getLogicalId()) {
-						case 'tadoMode':
-							$value = $zoneState->tadoMode;
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value);
-							break;
-						case 'temperature':
-							$value = $zoneState->sensorDataPoints->insideTemperature->celsius;
-							$collectDate = date('Y-m-d H:i:s', strtotime($zoneState->sensorDataPoints->insideTemperature->timestamp));
-							// Temperature offset tunning							
-							$value = $zoneState->sensorDataPoints->insideTemperature->celsius;
-							$collectDate = date('Y-m-d H:i:s', strtotime($zoneState->sensorDataPoints->insideTemperature->timestamp));
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value, $collectDate);
-							break;
-						case 'humidity':
-							$value = $zoneState->sensorDataPoints->humidity->percentage;
-							$collectDate = date('Y-m-d H:i:s', strtotime($zoneState->sensorDataPoints->humidity->timestamp));
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value, $collectDate);
-							break;
-						case 'power':
-							$value = $zoneState->setting->power == "ON" ? true : false;
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value);
-							break;
-						case 'overlayMode':
-							if (is_object($zoneState->openWindow)) {
-								$value = "OW";
-							} elseif (is_object($zoneState->overlay)) {
-								$value = $zoneState->overlay->termination->typeSkillBasedApp;
-							} else {
-								$value = "AUTO";
-							}
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value);
-							break;
-						case 'acMode':
-							$value = $zoneState->setting->mode;
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value);
-							break;
-						case 'acFanSpeed':
-							$value = $zoneState->setting->fanSpeed;
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value);
-							break;
-						case 'acSwing':
-							$value = $zoneState->setting->swing;
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value);
-							break;
-						case 'targetTemperature':
-							$value = $zoneState->setting->power == "ON" ? $zoneState->setting->temperature->celsius : 0;
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value);
-							break;
-						case 'heatingPower':
-							$value = $zoneState->activityDataPoints->heatingPower->percentage;
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value);
-							break;
-						case 'openWindow':
-							$value = (isset($zoneState->openWindowDetected) && $zoneState->openWindowDetected) || is_object($zoneState->openWindow);
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value);
-							break;
-					}
+				$this->checkAndUpdateCmd('tadoMode', $zoneState->tadoMode);
+				$this->checkAndUpdateCmd('temperature', $zoneState->sensorDataPoints->insideTemperature->celsius, date('Y-m-d H:i:s', strtotime($zoneState->sensorDataPoints->insideTemperature->timestamp)));
+				$this->checkAndUpdateCmd('humidity', $zoneState->sensorDataPoints->humidity->percentage, date('Y-m-d H:i:s', strtotime($zoneState->sensorDataPoints->humidity->timestamp)));
+				$this->checkAndUpdateCmd('power', ($zoneState->setting->power == "ON"));
+				if (is_object($zoneState->openWindow)) {
+					$value = "OW";
+				} elseif (is_object($zoneState->overlay)) {
+					$value = $zoneState->overlay->termination->typeSkillBasedApp;
+				} else {
+					$value = "AUTO";
 				}
+				$this->checkAndUpdateCmd('overlayMode', $value);
+				$this->checkAndUpdateCmd('acMode', $zoneState->setting->mode);
+				$this->checkAndUpdateCmd('acFanSpeed', $zoneState->setting->fanSpeed);
+				$this->checkAndUpdateCmd('acSwing', $zoneState->setting->swing);
+				$this->checkAndUpdateCmd('targetTemperature', ($zoneState->setting->power == "ON") ? $zoneState->setting->temperature->celsius : 0);
+				$this->checkAndUpdateCmd('heatingPower', $zoneState->activityDataPoints->heatingPower->percentage);
+				$this->checkAndUpdateCmd('openWindow', (isset($zoneState->openWindowDetected) && $zoneState->openWindowDetected) || is_object($zoneState->openWindow));
 				break;
-
 			case 'mobileDevice':
-
-				$mobile_id = $this->getConfiguration('mobileDeviceId');
-				$mobileDevice = tado::getApiHandler($this->getConfiguration('user'))->getMobileDevice($home_id, $mobile_id);
-
-				foreach ($this->getCmd() as $eqLogic_cmd) {
-					switch ($eqLogic_cmd->getLogicalId()) {
-						case 'atHome':
-							$value = $mobileDevice->location->atHome;
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value);
-							break;
-						case 'bearingFromHome':
-							$value = $mobileDevice->location->bearingFromHome->degrees;
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value);
-							break;
-						case 'relativeDistanceFromHomeFence':
-							$value = $mobileDevice->location->relativeDistanceFromHomeFence;
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value);
-							break;
-					}
-				}
+				$mobileDevice = tado::getApiHandler($this->getConfiguration('user'))->getMobileDevice($home_id, $this->getConfiguration('mobileDeviceId'));
+				$this->checkAndUpdateCmd('atHome', $mobileDevice->location->atHome);
+				$this->checkAndUpdateCmd('bearingFromHome', $mobileDevice->location->bearingFromHome->degrees);
+				$this->checkAndUpdateCmd('relativeDistanceFromHomeFence', $mobileDevice->location->relativeDistanceFromHomeFence);
 				break;
-
 			case ('device'):
-
-				$device_id = $this->getConfiguration('deviceId');
-				$device = tado::getApiHandler($this->getConfiguration('user'))->getDevice($device_id);
-
-				foreach ($this->getCmd() as $eqLogic_cmd) {
-					switch ($eqLogic_cmd->getLogicalId()) {
-						case 'connectionState':
-							$value = $device->connectionState->value;
-							$collectDate = date('Y-m-d H:i:s', strtotime($device->connectionState->timestamp));
-							$this->checkAndUpdateCmd($eqLogic_cmd->getLogicalId(), $value, $collectDate);
-							break;
-					}
-				}
+				$device = tado::getApiHandler($this->getConfiguration('user'))->getDevice($this->getConfiguration('deviceId'));
+				$this->checkAndUpdateCmd('connectionState', $device->connectionState->value, date('Y-m-d H:i:s', strtotime($device->connectionState->timestamp)));
 				if (isset($device->batteryState)) {
-					if ($device->batteryState == 'NORMAL') {
-						$this->batteryStatus(100);
-					} else {
-						$this->batteryStatus(10);
-					}
+					$this->batteryStatus(($device->batteryState == 'NORMAL') ? 100 : 20);
 				}
 				break;
 		}
@@ -469,6 +332,23 @@ class tado extends eqLogic {
 		}
 	}
 
+	public function setEqLogicConfig() {
+		$this->setConfiguration('eqLogicType', tado::getGConfig($this->getConfiguration('eqType') . '::eqLogicType'));
+		foreach ((tado::getGConfig($this->getConfiguration('eqType') . '::cmd')) as $command) {
+			$cmdConfig = tado::getGConfig('commands::' . $command);
+			$cmd = $this->getCmd(null, $command);
+			if (!is_object($cmd)) {
+				$cmd = new tadoCmd();
+				$cmd->setEqLogic_id($this->getId());
+			} else {
+				$cmdConfig['name'] = $cmd->getName();
+			}
+			utils::a2o($cmd, $cmdConfig);
+			$cmd->save();
+		}
+		$this->save();
+	}
+
 	public function postSave() {
 		if ($this->getIsEnable() == 1 && $this->getConfiguration('eqLogicType') == 'zone') {
 			$eqLogic = eqLogic::byId($this->id);
@@ -477,11 +357,7 @@ class tado extends eqLogic {
 				$coolCmdState = $eqLogic->getCmd(null, 'coolCmdState');
 				$cool = $eqLogic->getCmd(null, 'cool');
 				if (is_object($coolCmdState) && is_object($cool)) {
-					if ($coolCmdState->execCmd() == 1) {
-						$capabilities = $capabilities['COOL'];
-					} else {
-						$capabilities = $capabilities['HEAT'];
-					}
+					$capabilities = ($coolCmdState->execCmd() == 1) ? $capabilities['COOL'] : $capabilities['HEAT'];
 					$cool->setValue($coolCmdState->getId());
 					$cool->save();
 				}
@@ -491,12 +367,10 @@ class tado extends eqLogic {
 				$thermostat = $eqLogic->getCmd(null, 'thermostat');
 				if (is_object($thermostat) && is_object($order)) {
 					$thermostat->setValue($order->getId());
-
 					$order->setConfiguration('maxValue', $capabilities['temperatures']['celsius']['max']);
 					$order->setConfiguration('minValue', min(0, $capabilities['temperatures']['celsius']['min'] - 1));
 					$thermostat->setConfiguration('maxValue', $capabilities['temperatures']['celsius']['max']);
 					$thermostat->setConfiguration('minValue', $capabilities['temperatures']['celsius']['min'] - 1);
-
 					$order->save();
 					$thermostat->save();
 				}
@@ -518,72 +392,7 @@ class tado extends eqLogic {
 					throw new Exception(__('La valeur du timer doit être inférieure à 720 min', __FILE__));
 				}
 			}
-			$oldEqLogic = eqLogic::byId($this->id);
-			$oldConf = $oldEqLogic->getConfiguration('openWindowDetectionEnabled');
-			$newConf = $this->getConfiguration('openWindowDetectionEnabled');
-			$oldTimeout = $oldEqLogic->getConfiguration('openWindowTimeout');
-			$newTimeout = $this->getConfiguration('openWindowTimeout');
-
-			if (($oldConf != $newConf || $oldTimeout != $newTimeout) && is_numeric($newTimeout)) {
-				$payload = array(
-					'enabled' => ($newConf == 'yes') ? true : false,
-					'timeoutInSeconds' => $newTimeout * 60
-				);
-				$Data = tado::getApiHandler($this->getConfiguration('user'))->updateZoneOpenWindowDetection(json_encode($payload), $this->getConfiguration('homeId'), $this->getConfiguration('zoneId'));
-				if (!is_object($Data)) {
-					throw new Exception(__('Erreur lors de la mise a jour de la détection de fenêtre ouverte'));
-				} else {
-					$conf = (object) $this->getConfiguration('openWindowDetection');
-					$conf->enabled = $payload['enabled'];
-					$conf->timeoutInSeconds = $payload['timeoutInSeconds'];
-					$this->setConfiguration('openWindowDetection', $conf);
-				}
-			}
 		}
-	}
-
-	public function runtimeByDay($_startDate = null, $_endDate = null) {
-		if ($this->getConfiguration('eqType') == 'HOT_WATER') {
-			//$actifCmd = $this->getCmd(null, 'power');
-		} else {
-			$actifCmd = $this->getCmd(null, 'heatingPower');
-		}
-		if (!is_object($actifCmd)) {
-			return array();
-		}
-		$return = array();
-		$prevValue = 0;
-		$prevDatetime = 0;
-		$day = null;
-		$day = strtotime($_startDate . ' 00:00:00 UTC');
-		$endDatetime = strtotime($_endDate . ' 00:00:00 UTC');
-		while ($day <= $endDatetime) {
-			$return[date('Y-m-d', $day)] = array($day * 1000, 0);
-			$day = $day + 3600 * 24;
-		}
-		foreach ($actifCmd->getHistory($_startDate, $_endDate) as $history) {
-			if (date('Y-m-d', strtotime($history->getDatetime())) != $day && $prevValue > 0 && $day != null) {
-				if (strtotime($day . ' 23:59:59') > $prevDatetime) {
-					$return[$day][1] += (strtotime($day . ' 23:59:59') - $prevDatetime) / 60;
-				}
-				$prevDatetime = strtotime(date('Y-m-d 00:00:00', strtotime($history->getDatetime())));
-			}
-			$day = date('Y-m-d', strtotime($history->getDatetime()));
-			if (!isset($return[$day])) {
-				$return[$day] = array(strtotime($day . ' 00:00:00 UTC') * 1000, 0);
-			}
-			if ($history->getValue() > 0 && $prevValue == 0) {
-				$prevDatetime = strtotime($history->getDatetime());
-				$prevValue = $history->getValue();
-			}
-			if ($history->getValue() == 0 && $prevValue > 0) {
-				if ($prevDatetime > 0 && strtotime($history->getDatetime()) > $prevDatetime) {
-					$return[$day][1] += (strtotime($history->getDatetime()) - $prevDatetime) / 60;
-				}
-				$prevValue = 0;
-			}
-		}
-		return $return;
 	}
 	/*     * **********************Getteur Setteur*************************** */
 }
@@ -600,41 +409,31 @@ class tadoCmd extends cmd {
 	public function execute($_options = array()) {
 		$lId = $this->getLogicalId();
 		$eqLogic = $this->getEqLogic();
-
 		if ($lId == 'refresh') {
 			$eqLogic->syncData();
 		} elseif ($lId == 'activateOpenWindow') {
 			// Open window activation : Does not work when no open window is detected. Works when open window is actually detected
-			$home_id = $eqLogic->getConfiguration('homeId');
-			$zone_id = $eqLogic->getConfiguration('zoneId');
-			$Data = tado::getApiHandler($eqLogic->getConfiguration('user'))->activateOpenWindow($home_id, $zone_id);
+			tado::getApiHandler($eqLogic->getConfiguration('user'))->activateOpenWindow($eqLogic->getConfiguration('homeId'), $eqLogic->getConfiguration('zoneId'));
 			$eqLogic->syncData();
 		} elseif ($lId == 'auto') {
 			// Cancel Open Window mode
-			//$eqLogic->getCmd(null, 'targetTemperature')->execCmd()
-			$home_id = $eqLogic->getConfiguration('homeId');
-			$zone_id = $eqLogic->getConfiguration('zoneId');
-			$Data = tado::getApiHandler($eqLogic->getConfiguration('user'))->deleteZoneOverlay($home_id, $zone_id);
+			tado::getApiHandler($eqLogic->getConfiguration('user'))->deleteZoneOverlay($eqLogic->getConfiguration('homeId'), $eqLogic->getConfiguration('zoneId'));
 			if ($eqLogic->getConfiguration('eqType') != "HOT_WATER") {
-				$Data = tado::getApiHandler($eqLogic->getConfiguration('user'))->deleteOpenWindow($home_id, $zone_id);
+				tado::getApiHandler($eqLogic->getConfiguration('user'))->deleteOpenWindow($eqLogic->getConfiguration('homeId'), $zone_id);
 			}
 			$eqLogic->syncData();
 		} elseif ($lId == 'away') {
-			$home_id = $eqLogic->getConfiguration('homeId');
-			$Data = tado::getApiHandler($eqLogic->getConfiguration('user'))->updateHomePresenceLock(json_encode(array('homePresence' => "AWAY")), $home_id);
+			tado::getApiHandler($eqLogic->getConfiguration('user'))->updateHomePresenceLock(json_encode(array('homePresence' => "AWAY")), $eqLogic->getConfiguration('homeId'));
 			$eqLogic->syncData();
-			$zones = eqLogic::byType('tado');
-			foreach ($zones as $zone) {
+			foreach ((eqLogic::byType('tado')) as $zone) {
 				if ($zone->getConfiguration('eqLogicType') == 'zone') {
 					$zone->syncData();
 				}
 			}
 		} elseif ($lId == 'home') {
-			$home_id = $eqLogic->getConfiguration('homeId');
-			$Data = tado::getApiHandler($eqLogic->getConfiguration('user'))->updateHomePresenceLock(json_encode(array('homePresence' => "HOME")), $home_id);
+			tado::getApiHandler($eqLogic->getConfiguration('user'))->updateHomePresenceLock(json_encode(array('homePresence' => "HOME")), $eqLogic->getConfiguration('homeId'));
 			$eqLogic->syncData();
-			$zones = eqLogic::byType('tado');
-			foreach ($zones as $zone) {
+			foreach ((eqLogic::byType('tado')) as $zone) {
 				if ($zone->getConfiguration('eqLogicType') == 'zone') {
 					$zone->syncData();
 				}
@@ -660,17 +459,10 @@ class tadoCmd extends cmd {
 				$changed = $changed || ($eqLogic->getCmd(null, 'acMode')->execCmd() != $localMode);
 			}
 			if ($changed) {
-				$home_id = $eqLogic->getConfiguration('homeId');
-				$zone_id = $eqLogic->getConfiguration('zoneId');
 				$capabilities = $eqLogic->getConfiguration('capabilities');
 				if ($eqLogic->getConfiguration('eqType') == 'AIR_CONDITIONING') {
-					if ($eqLogic->getCmd(null, 'coolCmdState')->execCmd() == 1) {
-						$capabilities  = $capabilities['COOL'];
-					} else {
-						$capabilities  = $capabilities['HEAT'];
-					}
+					$capabilities  = ($eqLogic->getCmd(null, 'coolCmdState')->execCmd() == 1) ? $capabilities['COOL'] : $capabilities['HEAT'];
 				}
-
 				if (isset($capabilities['canSetTemperature']) && !$capabilities['canSetTemperature']) {
 					return;
 				}
@@ -696,27 +488,19 @@ class tadoCmd extends cmd {
 						}
 					}
 				} else {
-					$setting = array(
-						'type' => $eqLogic->getConfiguration('eqType'),
-						'power' => 'OFF',
-					);
+					$setting = array('type' => $eqLogic->getConfiguration('eqType'), 'power' => 'OFF');
 				}
-				$Timeout = $eqLogic->getConfiguration('overlayTimeoutSelection');
 				$termination = array('typeSkillBasedApp' => 'NEXT_TIME_BLOCK');
-				if ($Timeout == 'TIMER' && is_numeric($eqLogic->getConfiguration('overlayTimeout'))) {
+				if ($eqLogic->getConfiguration('overlayTimeoutSelection') == 'TIMER' && is_numeric($eqLogic->getConfiguration('overlayTimeout'))) {
 					$termination['typeSkillBasedApp'] = 'TIMER';
 					$termination['durationInSeconds'] = $eqLogic->getConfiguration('overlayTimeout') * 60;
-				} elseif ($Timeout == 'NEXT_TIME_BLOCK') {
+				} elseif ($eqLogic->getConfiguration('overlayTimeoutSelection') == 'NEXT_TIME_BLOCK') {
 					$termination['typeSkillBasedApp'] = 'TADO_MODE';
-				} elseif ($Timeout == 'MANUAL') {
+				} elseif ($eqLogic->getConfiguration('overlayTimeoutSelection') == 'MANUAL') {
 					$termination['typeSkillBasedApp'] = 'MANUAL';
 				}
-
-				$payload = array(
-					'setting' => $setting,
-					'termination' => $termination
-				);
-				$Data = tado::getApiHandler($eqLogic->getConfiguration('user'))->updateZoneOverlay(json_encode($payload), $home_id, $zone_id);
+				$payload = array('setting' => $setting, 'termination' => $termination);
+				tado::getApiHandler($eqLogic->getConfiguration('user'))->updateZoneOverlay(json_encode($payload), $eqLogic->getConfiguration('homeId'), $eqLogic->getConfiguration('zoneId'));
 				$eqLogic->syncData();
 			}
 		}
