@@ -26,67 +26,6 @@ try {
 
 	ajax::init();
 
-	if (init('action') == 'getZones') {
-		if (init('object_id') == '') {
-			$_GET['object_id'] = $_SESSION['user']->getOptions('defaultDashboardObject');
-		}
-		$object = jeeObject::byId(init('object_id'));
-		if (!is_object($object)) {
-			$object = jeeObject::rootObject();
-		}
-		if (!is_object($object)) {
-			throw new Exception(__('Aucun objet racine trouvé', __FILE__));
-		}
-
-		$zones = array();
-		$eqLogics = $object->getEqLogic(true, false, 'tado');
-		foreach ($eqLogics as $eqLogic) {
-			if ($eqLogic->getConfiguration('eqLogicType') == 'zone') {
-				$zones[] = $eqLogic;
-			}
-		}
-		$eqLogics = eqLogic::byType('tado');
-		foreach ($eqLogics as $eqLogic) {
-			if ($eqLogic->getConfiguration('eqLogicType') == 'weather') {
-				$weather = $eqLogic;
-			}
-		}
-		if (count($zones) == 0) {
-			$allObject = jeeObject::buildTree();
-			foreach ($allObject as $object_sel) {
-				$zones = array();
-				$eqLogics = $object->getEqLogic(true, false, 'tado');
-				foreach ($eqLogics as $eqLogic) {
-					if ($eqLogic->getConfiguration('eqLogicType') == 'zone') {
-						$zones[] = $eqLogic;
-					}
-				}
-				if (count($zones) > 0) {
-					$object = $object_sel;
-					break;
-				}
-			}
-		}
-		$return = array('object' => utils::o2a($object));
-
-		$date = array(
-			'start' => init('dateStart'),
-			'end' => init('dateEnd'),
-		);
-
-		if ($date['start'] == '') {
-			$date['start'] = date('Y-m-d', strtotime('-1 months ' . date('Y-m-d')));
-		}
-		if ($date['end'] == '') {
-			$date['end'] = date('Y-m-d', strtotime('+1 days ' . date('Y-m-d')));
-		}
-		$return['date'] = $date;
-		foreach ($zones as $eqLogic) {
-			$return['eqLogics'][] = array('eqLogic' => utils::o2a($eqLogic), 'weather' => utils::o2a($eqLogic->getWeather()), 'html' => $eqLogic->toHtml(init('version')), 'runtimeByDay' => array_values($eqLogic->runtimeByDay($date['start'], $date['end'])));
-		}
-		ajax::success($return);
-	}
-
 	if (init('action') == 'syncEqLogicWithTado') {
 		tado::syncEqLogicWithTado();
 		ajax::success();
@@ -114,7 +53,7 @@ try {
 		if (init('user') != '' && init('password') != '') {
 			$conf_tokens = config::byKey('tadoTokens', 'tado');
 			$alreadyRegistered = false;
-			foreach ($conf_tokens as $user => $conf_token) {
+			foreach ($conf_tokens as $user) {
 				if (init('user') == $user) {
 					$alreadyRegistered = true;
 				}
