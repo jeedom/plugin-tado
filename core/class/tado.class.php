@@ -285,8 +285,12 @@ class tado extends eqLogic {
 					tado::getApiHandler($this->getConfiguration('user'))->activateOpenWindow($home_id, $zone_id);
 				}
 				$this->checkAndUpdateCmd('tadoMode', $zoneState->tadoMode);
-				$this->checkAndUpdateCmd('temperature', $zoneState->sensorDataPoints->insideTemperature->celsius, date('Y-m-d H:i:s', strtotime($zoneState->sensorDataPoints->insideTemperature->timestamp)));
-				$this->checkAndUpdateCmd('humidity', $zoneState->sensorDataPoints->humidity->percentage, date('Y-m-d H:i:s', strtotime($zoneState->sensorDataPoints->humidity->timestamp)));
+				if (isset($zoneState->sensorDataPoints->insideTemperature->celsius)) {
+					$this->checkAndUpdateCmd('temperature', $zoneState->sensorDataPoints->insideTemperature->celsius, date('Y-m-d H:i:s', strtotime($zoneState->sensorDataPoints->insideTemperature->timestamp)));
+				}
+				if (isset($zoneState->sensorDataPoints->humidity->percentage)) {
+					$this->checkAndUpdateCmd('humidity', $zoneState->sensorDataPoints->humidity->percentage, date('Y-m-d H:i:s', strtotime($zoneState->sensorDataPoints->humidity->timestamp)));
+				}
 				$this->checkAndUpdateCmd('power', ($zoneState->setting->power == "ON"));
 				if (is_object($zoneState->openWindow)) {
 					$value = "OW";
@@ -296,9 +300,15 @@ class tado extends eqLogic {
 					$value = "AUTO";
 				}
 				$this->checkAndUpdateCmd('overlayMode', $value);
-				$this->checkAndUpdateCmd('acMode', $zoneState->setting->mode);
-				$this->checkAndUpdateCmd('acFanSpeed', $zoneState->setting->fanSpeed);
-				$this->checkAndUpdateCmd('acSwing', $zoneState->setting->swing);
+				if (isset($zoneState->setting->mode)) {
+					$this->checkAndUpdateCmd('acMode', $zoneState->setting->mode);
+				}
+				if (isset($zoneState->setting->fanSpeed)) {
+					$this->checkAndUpdateCmd('acFanSpeed', $zoneState->setting->fanSpeed);
+				}
+				if (isset($zoneState->setting->swing)) {
+					$this->checkAndUpdateCmd('acSwing', $zoneState->setting->swing);
+				}
 				$this->checkAndUpdateCmd('targetTemperature', ($zoneState->setting->power == "ON") ? $zoneState->setting->temperature->celsius : 0);
 				$this->checkAndUpdateCmd('heatingPower', $zoneState->activityDataPoints->heatingPower->percentage);
 				$this->checkAndUpdateCmd('openWindow', (isset($zoneState->openWindowDetected) && $zoneState->openWindowDetected) || is_object($zoneState->openWindow));
