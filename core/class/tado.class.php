@@ -282,7 +282,7 @@ class tado extends eqLogic {
 				$this->syncOpenWindowState($zoneDetails);
 				log::add('tado', 'info', __METHOD__ . ' - zoneState : ' . json_encode($zoneState));
 				if (isset($zoneState->openWindowDetected) && $zoneState->openWindowDetected && $this->getConfiguration('openWindowDetectionAssist') == 'yes') {
-					tado::getApiHandler($this->getConfiguration('user'))->activateOpenWindow($home_id, $zone_id);
+					tado::getApiHandler($this->getConfiguration('user'))->activateOpenWindow($home_id, $this->getConfiguration('zoneId'));
 				}
 				$this->checkAndUpdateCmd('tadoMode', $zoneState->tadoMode);
 				if (isset($zoneState->sensorDataPoints->insideTemperature->celsius)) {
