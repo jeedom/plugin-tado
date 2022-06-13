@@ -431,7 +431,7 @@ class tadoCmd extends cmd {
 			// Cancel Open Window mode
 			tado::getApiHandler($eqLogic->getConfiguration('user'))->deleteZoneOverlay($eqLogic->getConfiguration('homeId'), $eqLogic->getConfiguration('zoneId'));
 			if ($eqLogic->getConfiguration('eqType') != "HOT_WATER") {
-				tado::getApiHandler($eqLogic->getConfiguration('user'))->deleteOpenWindow($eqLogic->getConfiguration('homeId'), $zone_id);
+				tado::getApiHandler($eqLogic->getConfiguration('user'))->deleteOpenWindow($eqLogic->getConfiguration('homeId'), $eqLogic->getConfiguration('zoneId'));
 			}
 			$eqLogic->syncData();
 		} elseif ($lId == 'away') {
