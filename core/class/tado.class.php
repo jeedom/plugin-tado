@@ -60,7 +60,7 @@ class tado extends eqLogic {
 
 	public static function syncEqLogicWithTado() {
 		$conf_tokens = config::byKey('tadoTokens', 'tado');
-		foreach ($conf_tokens as $user) {
+		foreach ($conf_tokens as $user => $conf_token) {
 			$me = tado::getApiHandler($user)->getMe();
 			foreach ($me->homes as $home) {
 				$home_id = $home->id;
