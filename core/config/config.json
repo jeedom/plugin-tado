@@ -67,7 +67,6 @@
         "acVerticalSwing",
         "acVerticalSwingOn",
         "acVerticalSwingOff",
-        "heatingPower",
         "temperature",
         "humidity",
         "rawSet"
@@ -492,6 +491,9 @@
         "template":{
            "dashboard":"core::button",
            "mobile":"core::button"
+        },
+        "display" : {
+         "parameters":{"step":"1"}
         }
       },
       "activateOpenWindow":{
