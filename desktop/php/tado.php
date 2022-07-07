@@ -165,25 +165,25 @@ $eqLogics = eqLogic::byType($plugin->getId());
 							<fieldset>
 								<legend><i class="fas fa-info-circle"></i> {{Informations}}</legend>
 								<div class="form-group">
-									<label class="col-sm-4"></label>
+									<label class="col-sm-3"></label>
 									<div class="col-sm-7 text-center">
 										<img name="icon_visu" src="<?= $plugin->getPathImgIcon(); ?>" style="max-width:160px;" id="img_device" />
 									</div>
 								</div>
 								<div class="form-group">
-									<label class="col-sm-4 control-label">{{Type}}</label>
+									<label class="col-sm-3 control-label">{{Type}}</label>
 									<div class="col-sm-6">
 										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="device"></span>
 									</div>
 								</div>
 								<div class="form-group">
-									<label class="col-sm-4 control-label">{{ID}}</label>
+									<label class="col-sm-3 control-label">{{ID}}</label>
 									<div class="col-sm-6">
 										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="deviceId"></span>
 									</div>
 								</div>
 								<div class="form-group">
-									<label class="col-sm-4 control-label">{{Firmware}}</label>
+									<label class="col-sm-3 control-label">{{Firmware}}</label>
 									<div class="col-sm-6">
 										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="currentFwVersion"></span>
 									</div>
