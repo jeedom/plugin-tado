@@ -50,6 +50,8 @@
      "eqLogicType":"zone",
      "cmd":[
         "refresh",
+        "off",
+        "on",
         "power",
         "tadoMode",
         "openWindow",
@@ -57,15 +59,18 @@
         "activateOpenWindow",
         "targetTemperature",
         "thermostat",
-        "cool",
-        "coolCmdState",
         "acMode",
+        "acModeSet",
         "overlayMode",
-        "acFanSpeed",
-        "acSwing",
+        "acFanLevel",
+        "acFanLevelSet",
+        "acVerticalSwing",
+        "acVerticalSwingOn",
+        "acVerticalSwingOff",
         "heatingPower",
         "temperature",
-        "humidity"
+        "humidity",
+        "rawSet"
      ]
   },
   "IB01":{
@@ -173,53 +178,37 @@
         "subType":"binary",
         "isHistorized":1,
         "isVisible":1,
-        "generic_type":"PRESENCE",
-        "template":{
-           "dashboard":"core::presence",
-           "mobile":"core::presence"
-        }
+        "generic_type":"PRESENCE"
      },
      "refresh":{
         "name":"Rafraichir",
         "logicalId":"refresh",
         "type":"action",
-        "subType":"other",
-        "template":{
-           "dashboard":"default",
-           "mobile":"default"
-        }
+        "subType":"other"
      },
      "tadoMode":{
         "name":"Mode",
         "logicalId":"tadoMode",
         "type":"info",
         "subType":"string",
-        "isHistorized":1,
+        "isHistorized":0,
         "isVisible":1,
-        "display":{
-           "showNameOndashboard":0,
-           "showNameOnmobile":0
-        },
         "template":{
-           "dashboard":"core::tile",
-           "mobile":"core::tile"
+           "dashboard":"core::line",
+           "mobile":"core::line"
         }
      },
      "power":{
         "name":"Etat",
         "logicalId":"power",
         "type":"info",
-        "isHistorized":1,
-        "isVisible":1,
+        "isHistorized":0,
+        "isVisible":0,
         "subType":"binary",
         "generic_type":"DONT",
-        "display":{
-           "showNameOndashboard":0,
-           "showNameOnmobile":0
-        },
         "template":{
-           "dashboard":"core::prise",
-           "mobile":"core::prise"
+           "dashboard":"core::line",
+           "mobile":"core::line"
         }
      },
      "heatingPower":{
@@ -229,14 +218,11 @@
         "isHistorized":1,
         "subType":"numeric",
         "generic_type":"GENERIC",
+        "isVisible":0,
         "unite":"%",
         "template":{
            "dashboard":"core::line",
            "mobile":"core::line"
-        },
-        "configuration":{
-           "minValue":0,
-           "maxValue":100
         }
      },
      "temperature":{
@@ -246,15 +232,7 @@
         "isHistorized":1,
         "subType":"numeric",
         "generic_type":"TEMPERATURE",
-        "unite":"°C",
-        "template":{
-           "dashboard":"core::line",
-           "mobile":"core::line"
-        },
-        "configuration":{
-           "minValue":-20,
-           "maxValue":60
-        }
+        "unite":"°C"
      },
      "humidity":{
         "name":"Humidité",
@@ -267,10 +245,6 @@
         "template":{
            "dashboard":"core::line",
            "mobile":"core::line"
-        },
-        "configuration":{
-           "minValue":0,
-           "maxValue":100
         }
      },
      "overlayMode":{
@@ -278,68 +252,82 @@
         "logicalId":"overlayMode",
         "type":"info",
         "subType":"string",
-        "isHistorized":1,
-        "isVisible":1,
-        "display":{
-           "forceReturnLineBefore":1,
-           "forceReturnLineAfter":1,
-           "showNameOndashboard":0,
-           "showNameOnmobile":0
-        },
-        "template":{
-           "dashboard":"core::tile",
-           "mobile":"core::tile"
-        }
-     },
-     "coolCmdState":{
-        "name":"Etat du mode de commande",
-        "logicalId":"coolCmdState",
-        "type":"info",
         "isHistorized":0,
         "isVisible":0,
-        "subType":"binary"
+        "template":{
+           "dashboard":"core::line",
+           "mobile":"core::line"
+        }
      },
      "acMode":{
-        "name":"Mode de climatisation",
+        "name":"Etat mode de climatisation",
         "logicalId":"acMode",
         "type":"info",
         "subType":"string",
-        "isHistorized":1,
-        "isVisible":1,
-        "display":{
-           "forceReturnLineBefore":1,
-           "forceReturnLineAfter":1,
-           "showNameOndashboard":0,
-           "showNameOnmobile":0
-        },
-        "template":{
-           "dashboard":"core::tile",
-           "mobile":"core::tile"
-        }
+        "isHistorized":0,
+        "isVisible":0
      },
-     "acFanSpeed":{
-        "name":"Vitesse de ventilation",
-        "logicalId":"acFanSpeed",
-        "type":"info",
-        "subType":"numeric",
-        "isHistorized":1,
-        "isVisible":1,
-        "template":{
-           "dashboard":"core::line",
-           "mobile":"core::line"
-        }
+     "acModeSet":{
+      "name":"Mode de climatisation",
+      "logicalId":"acModeSet",
+      "type":"action",
+      "subType":"select",
+      "isVisible":1,
+      "value" : "acMode",
+      "configuration" :{
+         "listValue" : "COOL|Cool;DRY|Dry;FAN|Fan;AUTO|Auto;HEAT|Heat"
+      }
      },
-     "acSwing":{
-        "name":"Oscillation",
-        "logicalId":"acSwing",
+     "acFanLevel":{
+        "name":"Etat ventilation",
+        "logicalId":"acFanLevel",
         "type":"info",
         "subType":"string",
         "isHistorized":1,
-        "isVisible":1,
-        "template":{
-           "dashboard":"core::line",
-           "mobile":"core::line"
-        }
+        "isVisible":0
+     },
+     "acFanLevelSet":{
+      "name":"Vitesse de ventilation",
+      "logicalId":"acFanLevelSet",
+      "type":"action",
+      "subType":"select",
+      "isVisible":1,
+      "value" : "acFanLevel",
+      "configuration" :{
+         "listValue" : "AUTO|Auto;LEVEL1|Vitesse 1;LEVEL2|Vitesse 2;LEVEL3|Vitesse 3;LEVEL4|Vitesse 4"
+      }
+     },
+     "acVerticalSwing":{
+        "name":"Oscillation",
+        "logicalId":"acVerticalSwing",
+        "type":"info",
+        "subType":"binary",
+        "isHistorized":0,
+        "isVisible":0
+     },
+     "acVerticalSwingOn":{
+      "name":"Oscillation On",
+      "logicalId":"acVerticalSwingOn",
+      "type":"action",
+      "subType":"other",
+      "value" : "acVerticalSwing",
+      "isVisible":1,
+      "template":{
+         "dashboard":"core::toggleLine",
+         "mobile":"core::toggleLine"
+      }
+     },
+     "acVerticalSwingOff":{
+      "name":"Oscillation Off",
+      "logicalId":"acVerticalSwingOff",
+      "type":"action",
+      "subType":"other",
+      "value" : "acVerticalSwing",
+      "isVisible":1,
+      "template":{
+         "dashboard":"core::toggleLine",
+         "mobile":"core::toggleLine"
+      }
      },
      "targetTemperature":{
         "name":"Consigne de température",
@@ -348,29 +336,19 @@
         "isHistorized":1,
         "subType":"numeric",
         "generic_type":"TEMPERATURE_SETPOINT",
-        "unite":"°C",
-        "display":{
-           "forceReturnLineBefore":1,
-           "forceReturnLineAfter":1,
-           "showNameOndashboard":0,
-           "showNameOnmobile":0
-        },
-        "template":{
-           "dashboard":"core::tile",
-           "mobile":"core::tile"
-        }
+        "isVisible":0,
+        "unite":"°C"
      },
      "openWindow":{
         "name":"Fenêtre fermée",
         "logicalId":"openWindow",
         "type":"info",
         "isHistorized":1,
+        "isVisible":0,
         "subType":"binary",
         "generic_type":"OPENING_WINDOW",
         "display":{
-           "invertBinary":1,
-           "showNameOndashboard":0,
-           "showNameOnmobile":0
+           "invertBinary":1
         },
         "template":{
            "dashboard":"core::window",
@@ -388,10 +366,6 @@
         "template":{
            "dashboard":"core::line",
            "mobile":"core::line"
-        },
-        "configuration":{
-           "minValue":0,
-           "maxValue":100
         }
      },
      "weatherState":{
@@ -403,8 +377,8 @@
         "isVisible":1,
         "generic_type":"WEATHER_CONDITION",
         "template":{
-           "dashboard":"default",
-           "mobile":"default"
+           "dashboard":"core::line",
+           "mobile":"core::line"
         }
      },
      "connectionState":{
@@ -423,11 +397,7 @@
         "logicalId":"atHome",
         "type":"info",
         "isHistorized":1,
-        "subType":"binary",
-        "template":{
-           "dashboard":"core::line",
-           "mobile":"core::line"
-        }
+        "subType":"binary"
      },
      "bearingFromHome":{
         "name":"Relèvement depuis la maison",
@@ -436,13 +406,13 @@
         "isHistorized":1,
         "subType":"numeric",
         "unite":"°",
-        "template":{
-           "dashboard":"core::line",
-           "mobile":"core::line"
-        },
         "configuration":{
            "minValue":0,
            "maxValue":360
+        },
+        "template":{
+           "dashboard":"core::line",
+           "mobile":"core::line"
         }
      },
      "relativeDistanceFromHomeFence":{
@@ -464,10 +434,6 @@
         "subType":"other",
         "isVisible":1,
         "generic_type":"ENERGY_OFF",
-        "template":{
-           "dashboard":"default",
-           "mobile":"default"
-        },
         "display":{
            "icon":"<i class=\"fas fa-home\"></i>"
         }
@@ -479,30 +445,8 @@
         "subType":"other",
         "isVisible":1,
         "generic_type":"ENERGY_OFF",
-        "template":{
-           "dashboard":"default",
-           "mobile":"default"
-        },
         "display":{
            "icon":"<i class=\"icon jeedom-mouvement\"></i>"
-        }
-     },
-     "cool":{
-        "name":"Cool",
-        "logicalId":"cool",
-        "type":"action",
-        "subType":"slider",
-        "isVisible":1,
-        "generic_type":"",
-        "display":{
-           "forceReturnLineBefore":1,
-           "forceReturnLineAfter":1,
-           "showNameOndashboard":0,
-           "showNameOnmobile":0
-        },
-        "configuration":{
-           "minValue":0,
-           "maxValue":1
         }
      },
      "auto":{
@@ -511,44 +455,62 @@
         "type":"action",
         "subType":"other",
         "isVisible":1,
-        "generic_type":"THERMOSTAT_SET_MODE",
-        "template":{
-           "dashboard":"default",
-           "mobile":"default"
-        }
-     },
-     "thermostat":{
+        "generic_type":"THERMOSTAT_SET_MODE"
+      }, 
+      "off":{
+         "name":"Off",
+         "logicalId":"off",
+         "type":"action",
+         "subType":"other",
+         "isVisible":1,
+         "value" : "power",
+         "template":{
+            "dashboard":"core::toggleLine",
+            "mobile":"core::toggleLine"
+         }
+      },
+      "on":{
+         "name":"On",
+         "logicalId":"on",
+         "type":"action",
+         "subType":"other",
+         "isVisible":1,
+         "value" : "power",
+         "template":{
+            "dashboard":"core::toggleLine",
+            "mobile":"core::toggleLine"
+         }
+      },
+      "thermostat":{
         "name":"Thermostat",
         "logicalId":"thermostat",
         "type":"action",
         "subType":"slider",
         "isVisible":1,
+        "value" : "targetTemperature",
         "generic_type":"THERMOSTAT_SET_SETPOINT",
-        "display":{
-           "forceReturnLineBefore":1,
-           "forceReturnLineAfter":1,
-           "showNameOndashboard":0,
-           "showNameOnmobile":0
-        },
         "template":{
-           "dashboard":"core::thermostat",
-           "mobile":"core::thermostat"
+           "dashboard":"core::button",
+           "mobile":"core::button"
         }
-     },
-     "activateOpenWindow":{
+      },
+      "activateOpenWindow":{
         "name":"Activer fenêtre ouverte",
         "logicalId":"activateOpenWindow",
         "type":"action",
         "subType":"other",
-        "isVisible":1,
+        "isVisible":0,
         "generic_type":"ENERGY_ON",
-        "template":{
-           "dashboard":"default",
-           "mobile":"default"
-        },
         "display":{
            "icon":"<i class=\"icon jeedom-fenetre-ouverte\"></i>"
         }
-     }
+     },
+     "rawSet":{
+      "name":"Commande brute",
+      "logicalId":"rawSet",
+      "type":"action",
+      "subType":"message",
+      "isVisible":0
+   }
   }
 }

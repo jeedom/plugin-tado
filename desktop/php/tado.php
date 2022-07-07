@@ -36,7 +36,6 @@ foreach ($eqLogics as $eqLogic) {
 	}
 }
 ?>
-
 <div class="row row-overflow">
 	<div class="col-xs-12 eqLogicThumbnailDisplay">
 		<legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
@@ -284,7 +283,7 @@ foreach ($eqLogics as $eqLogic) {
 					<thead>
 						<tr>
 							<th style="width: 150px;"> ID</th>
-							<th style="width: 230px;">{{Nom}}</th>
+							<th style="width: 400px;">{{Nom}}</th>
 							<th>{{Paramètres}}</th>
 							<th style="width: 300px;">{{Options}}</th>
 							<th style="width: 150px;">{{Action}}</th>

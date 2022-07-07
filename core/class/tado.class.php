@@ -303,13 +303,15 @@ class tado extends eqLogic {
 				if (isset($zoneState->setting->mode)) {
 					$this->checkAndUpdateCmd('acMode', $zoneState->setting->mode);
 				}
-				if (isset($zoneState->setting->fanSpeed)) {
-					$this->checkAndUpdateCmd('acFanSpeed', $zoneState->setting->fanSpeed);
+				if (isset($zoneState->setting->fanLevel)) {
+					$this->checkAndUpdateCmd('acFanLevel', $zoneState->setting->fanLevel);
 				}
-				if (isset($zoneState->setting->swing)) {
-					$this->checkAndUpdateCmd('acSwing', $zoneState->setting->swing);
+				if (isset($zoneState->setting->verticalSwing)) {
+					$this->checkAndUpdateCmd('acVerticalSwing', $zoneState->setting->verticalSwing);
 				}
-				$this->checkAndUpdateCmd('targetTemperature', ($zoneState->setting->power == "ON") ? $zoneState->setting->temperature->celsius : 0);
+				if (isset($zoneState->setting->temperature->celsius) && $zoneState->setting->temperature->celsius > 0) {
+					$this->checkAndUpdateCmd('targetTemperature', $zoneState->setting->temperature->celsius);
+				}
 				if (isset($zoneState->activityDataPoints->heatingPower->percentage)) {
 					$this->checkAndUpdateCmd('heatingPower', $zoneState->activityDataPoints->heatingPower->percentage);
 				}
@@ -356,6 +358,12 @@ class tado extends eqLogic {
 				$cmdConfig['name'] = $cmd->getName();
 			}
 			utils::a2o($cmd, $cmdConfig);
+			if (isset($cmdConfig['value'])) {
+				$value = $this->getCmd(null, $cmdConfig['value']);
+				if (is_object($value)) {
+					$cmd->setValue($value->getId());
+				}
+			}
 			$cmd->save();
 		}
 		$this->save();
@@ -419,22 +427,24 @@ class tadoCmd extends cmd {
 	/*     * *********************Methode d'instance************************* */
 
 	public function execute($_options = array()) {
-		$lId = $this->getLogicalId();
 		$eqLogic = $this->getEqLogic();
-		if ($lId == 'refresh') {
+		if ($this->getLogicalId() == 'refresh') {
 			$eqLogic->syncData();
-		} elseif ($lId == 'activateOpenWindow') {
+			return;
+		} elseif ($this->getLogicalId() == 'activateOpenWindow') {
 			// Open window activation : Does not work when no open window is detected. Works when open window is actually detected
 			tado::getApiHandler($eqLogic->getConfiguration('user'))->activateOpenWindow($eqLogic->getConfiguration('homeId'), $eqLogic->getConfiguration('zoneId'));
 			$eqLogic->syncData();
-		} elseif ($lId == 'auto') {
+			return;
+		} elseif ($this->getLogicalId() == 'auto') {
 			// Cancel Open Window mode
 			tado::getApiHandler($eqLogic->getConfiguration('user'))->deleteZoneOverlay($eqLogic->getConfiguration('homeId'), $eqLogic->getConfiguration('zoneId'));
 			if ($eqLogic->getConfiguration('eqType') != "HOT_WATER") {
 				tado::getApiHandler($eqLogic->getConfiguration('user'))->deleteOpenWindow($eqLogic->getConfiguration('homeId'), $eqLogic->getConfiguration('zoneId'));
 			}
 			$eqLogic->syncData();
-		} elseif ($lId == 'away') {
+			return;
+		} elseif ($this->getLogicalId() == 'away') {
 			tado::getApiHandler($eqLogic->getConfiguration('user'))->updateHomePresenceLock(json_encode(array('homePresence' => "AWAY")), $eqLogic->getConfiguration('homeId'));
 			$eqLogic->syncData();
 			foreach ((eqLogic::byType('tado')) as $zone) {
@@ -442,7 +452,8 @@ class tadoCmd extends cmd {
 					$zone->syncData();
 				}
 			}
-		} elseif ($lId == 'home') {
+			return;
+		} elseif ($this->getLogicalId() == 'home') {
 			tado::getApiHandler($eqLogic->getConfiguration('user'))->updateHomePresenceLock(json_encode(array('homePresence' => "HOME")), $eqLogic->getConfiguration('homeId'));
 			$eqLogic->syncData();
 			foreach ((eqLogic::byType('tado')) as $zone) {
@@ -450,72 +461,61 @@ class tadoCmd extends cmd {
 					$zone->syncData();
 				}
 			}
-		} elseif ($lId == 'cool') {
-			if (!isset($_options['slider']) || $_options['slider'] == '' || !is_numeric(intval($_options['slider']))) {
-				return;
-			}
-			$eqLogic->checkAndUpdateCmd('coolCmdState', $_options['slider']);
-			$eqLogic->save();
-			$eqLogic->refreshWidget();
-		} elseif ($lId == 'thermostat' && $eqLogic->getConfiguration('eqLogicType') == 'zone') {
-			if (!isset($_options['slider']) || $_options['slider'] == '' || !is_numeric(intval($_options['slider']))) {
-				return;
-			}
-			$changed = ($eqLogic->getCmd(null, 'targetTemperature')->execCmd() != $_options['slider']);
+			return;
+		} elseif ($this->getLogicalId() == 'off') {
+			$setting = array('type' => $eqLogic->getConfiguration('eqType'), 'power' => 'OFF');
+		} elseif ($this->getLogicalId() == 'rawSet') {
+			$setting = json_decode('{' . $_options['message'] . '}', true);
+			$setting['type'] = $eqLogic->getConfiguration('eqType');
+		} else {
+			$setting = array(
+				'type' => $eqLogic->getConfiguration('eqType'),
+				'power' => 'ON',
+				'temperature' => array(
+					'celsius' => $eqLogic->getCmd('info', 'targetTemperature')->execCmd()
+				)
+			);
 			if ($eqLogic->getConfiguration('eqType') == 'AIR_CONDITIONING') {
-				if ($eqLogic->getCmd(null, 'coolCmdState')->execCmd() == 1) {
-					$localMode = 'COOL';
-				} else {
-					$localMode = 'HEAT';
-				}
-				$changed = $changed || ($eqLogic->getCmd(null, 'acMode')->execCmd() != $localMode);
+				$setting['verticalSwing'] = ($eqLogic->getCmd('info', 'acVerticalSwing')->execCmd()) ? 'ON' : 'OFF';
+				$setting['mode'] = $eqLogic->getCmd('info', 'acMode')->execCmd();
+				$setting['fanLevel'] = $eqLogic->getCmd('info', 'acFanLevel')->execCmd();
 			}
-			if ($changed) {
-				$capabilities = $eqLogic->getConfiguration('capabilities');
-				if ($eqLogic->getConfiguration('eqType') == 'AIR_CONDITIONING') {
-					$capabilities  = ($eqLogic->getCmd(null, 'coolCmdState')->execCmd() == 1) ? $capabilities['COOL'] : $capabilities['HEAT'];
+			if ($eqLogic->getConfiguration('eqLogicType') == 'zone') {
+				if ($this->getLogicalId() == 'thermostat') {
+					$setting['temperature']['celsius'] = $_options['slider'];
 				}
-				if (isset($capabilities['canSetTemperature']) && !$capabilities['canSetTemperature']) {
-					return;
+				if ($this->getLogicalId() == 'acModeSet') {
+					$setting['mode'] = $_options['select'];
 				}
-				if ($_options['slider'] >= $capabilities['temperatures']['celsius']['min'] && $_options['slider'] <= $capabilities['temperatures']['celsius']['max']) {
-					$setting = array(
-						'type' => $eqLogic->getConfiguration('eqType'),
-						'power' => 'ON',
-						'temperature' => array(
-							'celsius' => $_options['slider']
-						)
-					);
-					if ($eqLogic->getConfiguration('eqType') == 'AIR_CONDITIONING') {
-						if (isset($capabilities['fanSpeeds'])) {
-							$setting['fanSpeed'] = 'AUTO';
-						}
-						if (isset($capabilities['swings'])) {
-							$setting['swing'] = 'OFF';
-						}
-						if ($eqLogic->getCmd(null, 'coolCmdState')->execCmd() == 1) {
-							$setting['mode'] = 'COOL';
-						} else {
-							$setting['mode'] = 'HEAT';
-						}
-					}
-				} else {
-					$setting = array('type' => $eqLogic->getConfiguration('eqType'), 'power' => 'OFF');
+				if ($this->getLogicalId() == 'acFanLevelSet') {
+					$setting['fanLevel'] = $_options['select'];
 				}
-				$termination = array('typeSkillBasedApp' => 'NEXT_TIME_BLOCK');
-				if ($eqLogic->getConfiguration('overlayTimeoutSelection') == 'TIMER' && is_numeric($eqLogic->getConfiguration('overlayTimeout'))) {
-					$termination['typeSkillBasedApp'] = 'TIMER';
-					$termination['durationInSeconds'] = $eqLogic->getConfiguration('overlayTimeout') * 60;
-				} elseif ($eqLogic->getConfiguration('overlayTimeoutSelection') == 'NEXT_TIME_BLOCK') {
-					$termination['typeSkillBasedApp'] = 'TADO_MODE';
-				} elseif ($eqLogic->getConfiguration('overlayTimeoutSelection') == 'MANUAL') {
-					$termination['typeSkillBasedApp'] = 'MANUAL';
+				if ($this->getLogicalId() == 'acVerticalSwingOn') {
+					$setting['verticalSwing'] = 'ON';
 				}
-				$payload = array('setting' => $setting, 'termination' => $termination);
-				tado::getApiHandler($eqLogic->getConfiguration('user'))->updateZoneOverlay(json_encode($payload), $eqLogic->getConfiguration('homeId'), $eqLogic->getConfiguration('zoneId'));
-				$eqLogic->syncData();
+				if ($this->getLogicalId() == 'acVerticalSwingOff') {
+					$setting['verticalSwing'] = 'OFF';
+				}
+			}
+			if ($setting['mode'] == 'DRY') {
+				unset($setting['fanLevel']);
+			} elseif ($setting['mode'] == 'FAN') {
+				unset($setting['temperature']);
 			}
 		}
+		$termination = array('typeSkillBasedApp' => 'NEXT_TIME_BLOCK');
+		if ($eqLogic->getConfiguration('overlayTimeoutSelection') == 'TIMER' && is_numeric($eqLogic->getConfiguration('overlayTimeout'))) {
+			$termination['typeSkillBasedApp'] = 'TIMER';
+			$termination['durationInSeconds'] = $eqLogic->getConfiguration('overlayTimeout') * 60;
+		} elseif ($eqLogic->getConfiguration('overlayTimeoutSelection') == 'NEXT_TIME_BLOCK') {
+			$termination['typeSkillBasedApp'] = 'TADO_MODE';
+		} elseif ($eqLogic->getConfiguration('overlayTimeoutSelection') == 'MANUAL') {
+			$termination['typeSkillBasedApp'] = 'MANUAL';
+		}
+		$payload = array('setting' => $setting, 'termination' => $termination);
+		log::add('tado', 'debug', 'Payload : ' . json_encode($payload));
+		tado::getApiHandler($eqLogic->getConfiguration('user'))->updateZoneOverlay(json_encode($payload), $eqLogic->getConfiguration('homeId'), $eqLogic->getConfiguration('zoneId'));
+		$eqLogic->syncData();
 	}
 
 	/*     * **********************Getteur Setteur*************************** */
