@@ -67,96 +67,132 @@ $eqLogics = eqLogic::byType($plugin->getId());
 		<div class="tab-content" style="height:calc(100% - 50px);overflow:auto;overflow-x: hidden;">
 			<div role="tabpanel" class="tab-pane active" id="eqlogictab">
 				<br />
-				<form class="form-horizontal">
-					<fieldset>
-						<div id="generalConfig">
-							<legend><i class="fas fa-tachometer-alt"></i> {{Général}}</legend>
-							<div class="form-group">
-								<label class="col-sm-3 control-label">{{Nom de l'équipement}}</label>
-								<div class="col-sm-3">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
-									<input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom de l'équipement template}}" />
+				<div class="row">
+					<div class="col-sm-6">
+						<form class="form-horizontal">
+							<fieldset>
+								<legend><i class="fas fa-home"></i> {{Général}}</legend>
+								<div id="generalConfig">
+									<div class="form-group">
+										<label class="col-sm-3 control-label">{{Nom de l'équipement}}</label>
+										<div class="col-sm-3">
+											<input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
+											<input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom de l'équipement template}}" />
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-3 control-label">{{Objet parent}}</label>
+										<div class="col-sm-3">
+											<select id="sel_object" class="eqLogicAttr form-control" data-l1key="object_id">
+												<option value="">{{Aucun}}</option>
+												<?php
+												foreach (jeeObject::all() as $object) {
+													echo '<option value="' . $object->getId() . '">' . $object->getName() . '</option>';
+												}
+												?>
+											</select>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-3 control-label">{{Catégorie}}</label>
+										<div class="col-sm-9">
+											<?php
+											foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
+												echo '<label class="checkbox-inline">';
+												echo '<input type="checkbox" class="eqLogicAttr" data-l1key="category" data-l2key="' . $key . '" />' . $value['name'];
+												echo '</label>';
+											}
+											?>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-3 control-label"></label>
+										<div class="col-sm-9">
+											<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isEnable" checked />{{Activer}}</label>
+											<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isVisible" checked />{{Visible}}</label>
+										</div>
+									</div>
 								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-3 control-label">{{Objet parent}}</label>
-								<div class="col-sm-3">
-									<select id="sel_object" class="eqLogicAttr form-control" data-l1key="object_id">
-										<option value="">{{Aucun}}</option>
-										<?php
-										foreach (jeeObject::all() as $object) {
-											echo '<option value="' . $object->getId() . '">' . $object->getName() . '</option>';
-										}
-										?>
-									</select>
+								<div id="homeConfig">
+									<div id="presenceConfig">
+										<legend><i class="fas fa-running"></i> {{Présence}}</legend>
+										<div class="form-group">
+											<label class="col-sm-3 control-label">{{Auto assist présence}}</label>
+											<div class="col-sm-3">
+												<select id="sel_openWindowDetectionAssist" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="presenceModeAssist">
+													<option value="no">{{Désactivé}}</option>
+													<option value="yes">{{Activé}}</option>
+												</select>
+											</div>
+										</div>
+									</div>
 								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-3 control-label">{{Catégorie}}</label>
-								<div class="col-sm-9">
-									<?php
-									foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
-										echo '<label class="checkbox-inline">';
-										echo '<input type="checkbox" class="eqLogicAttr" data-l1key="category" data-l2key="' . $key . '" />' . $value['name'];
-										echo '</label>';
-									}
-									?>
+								<div id="zoneConfig">
+									<div id="overlayTimeoutConfig">
+										<legend><i class="fas fa-clock"></i> {{Timeout}}</legend>
+										<div class="form-group">
+											<label class="col-sm-3 control-label">{{Changement de consigne à partir de Jeedom}}</label>
+											<div class="col-sm-3">
+												<select id="sel_overlayTimeoutSelection" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="overlayTimeoutSelection">
+													<option value="NEXT_TIME_BLOCK">{{Jusqu'au prochain changement automatique}}</option>
+													<option value="TIMER">{{Minuterie}}</option>
+													<option value="MANUAL">{{Jusqu'à l'arrêt par l'utilisateur}}</option>
+												</select>
+											</div>
+											<div class="col-sm-3" id="in_overlayTimeout">
+												<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="overlayTimeout" placeholder="{{Timeout (minutes)}}" />
+											</div>
+										</div>
+									</div>
+									<div id="openWindowConfig">
+										<legend><i class="fas fa-door-open"></i> {{Fenêtres}}</legend>
+										<div class="form-group">
+											<label class="col-sm-3 control-label">{{Auto assist fenêtres ouvertes}}</label>
+											<div class="col-sm-3">
+												<select id="sel_openWindowDetectionAssist" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="openWindowDetectionAssist">
+													<option value="no">{{Désactivé}}</option>
+													<option value="yes">{{Activé}}</option>
+												</select>
+											</div>
+										</div>
+									</div>
 								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-3 control-label"></label>
-								<div class="col-sm-9">
-									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isEnable" checked />{{Activer}}</label>
-									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isVisible" checked />{{Visible}}</label>
-								</div>
-							</div>
-						</div>
-						<div id="homeConfig">
-							<div id="presenceConfig">
-								<legend><i class="fas fa-running"></i> {{Présence}}</legend>
+							</fieldset>
+						</form>
+					</div>
+					<div class="col-sm-6">
+						<form class="form-horizontal">
+							<fieldset>
+								<legend><i class="fas fa-info-circle"></i> {{Informations}}</legend>
 								<div class="form-group">
-									<label class="col-sm-3 control-label">{{Auto assist présence}}</label>
-									<div class="col-sm-3">
-										<select id="sel_openWindowDetectionAssist" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="presenceModeAssist">
-											<option value="no">{{Désactivé}}</option>
-											<option value="yes">{{Activé}}</option>
-										</select>
+									<label class="col-sm-4"></label>
+									<div class="col-sm-7 text-center">
+										<img name="icon_visu" src="<?= $plugin->getPathImgIcon(); ?>" style="max-width:160px;" id="img_device" />
 									</div>
 								</div>
-							</div>
-						</div>
-						<div id="zoneConfig">
-							<div id="overlayTimeoutConfig">
-								<legend><i class="fas fa-clock"></i> {{Timeout}}</legend>
 								<div class="form-group">
-									<label class="col-sm-3 control-label">{{Changement de consigne à partir de Jeedom}}</label>
-									<div class="col-sm-3">
-										<select id="sel_overlayTimeoutSelection" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="overlayTimeoutSelection">
-											<option value="NEXT_TIME_BLOCK">{{Jusqu'au prochain changement automatique}}</option>
-											<option value="TIMER">{{Minuterie}}</option>
-											<option value="MANUAL">{{Jusqu'à l'arrêt par l'utilisateur}}</option>
-										</select>
-									</div>
-									<div class="col-sm-3" id="in_overlayTimeout">
-										<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="overlayTimeout" placeholder="{{Timeout (minutes)}}" />
+									<label class="col-sm-4 control-label">{{Type}}</label>
+									<div class="col-sm-6">
+										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="device"></span>
 									</div>
 								</div>
-							</div>
-							<div id="openWindowConfig">
-								<legend><i class="fas fa-door-open"></i> {{Fenêtres}}</legend>
 								<div class="form-group">
-									<label class="col-sm-3 control-label">{{Auto assist fenêtres ouvertes}}</label>
-									<div class="col-sm-3">
-										<select id="sel_openWindowDetectionAssist" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="openWindowDetectionAssist">
-											<option value="no">{{Désactivé}}</option>
-											<option value="yes">{{Activé}}</option>
-										</select>
+									<label class="col-sm-4 control-label">{{ID}}</label>
+									<div class="col-sm-6">
+										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="deviceId"></span>
 									</div>
 								</div>
-							</div>
-						</div>
-					</fieldset>
-				</form>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">{{Firmware}}</label>
+									<div class="col-sm-6">
+										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="currentFwVersion"></span>
+									</div>
+								</div>
+
+							</fieldset>
+						</form>
+					</div>
+				</div>
 			</div>
 			<div role="tabpanel" class="tab-pane" id="commandtab">
 				<table id="table_cmd" class="table table-bordered table-condensed">

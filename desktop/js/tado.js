@@ -16,45 +16,37 @@
  */
 
 $('#bt_syncEqLogicWithTado').off('click').on('click', function () {
-  syncEqLogicWithTado();
+	$.ajax({
+		type: "POST",
+		url: "plugins/tado/core/ajax/tado.ajax.php",
+		data: {
+		  action: "syncEqLogicWithTado",
+		},
+		dataType: 'json',
+		error: function (request, status, error) {
+		  handleAjaxError(request, status, error);
+		},
+		success: function (data) {
+		  if (data.state != 'ok') {
+			$('#div_alert').showAlert({message: data.result, level: 'danger'});
+			return;
+		  }
+		  window.location.reload();
+		}
+	  });
 });
 $("#table_cmd").sortable({axis: "y", cursor: "move", items: ".cmd", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true});
 
-function syncEqLogicWithTado() {
-  $.ajax({
-    type: "POST",
-    url: "plugins/tado/core/ajax/tado.ajax.php",
-    data: {
-      action: "syncEqLogicWithTado",
-    },
-    dataType: 'json',
-    error: function (request, status, error) {
-      handleAjaxError(request, status, error);
-    },
-    success: function (data) {
-      if (data.state != 'ok') {
-        $('#div_alert').showAlert({message: data.result, level: 'danger'});
-        return;
-      }
-      window.location.reload();
-    }
+$('.eqLogicAttr[data-l1key=configuration][data-l2key=device]').on('change', function () {
+	if($('.li_eqLogic.active').attr('data-eqlogic_id') != '' && $(this).value() != ''){
+	  let device = $('.eqLogicAttr[data-l1key=configuration][data-l2key=device]').value()
+	  $('#img_device').attr("src", 'plugins/tado/core/config/devices/'+device.toLowerCase()+'.png');
+	}else{
+	  $('#img_device').attr("src",'plugins/tado/plugin_info/tado_icon.png');
+	}
   });
-}
 
-$(".eqLogic").off('click','.listCmdInfo').on('click','.listCmdInfo', function () {
-  var el = $(this).closest('.form-group').find('.eqLogicAttr');
-  jeedom.cmd.getSelectModal({cmd: {type: 'info'}}, function (result) {
-    if (el.attr('data-concat') == 1) {
-      el.atCaret('insert', result.human);
-    } else {
-      el.value(result.human);
-    }
-  });
-});
 
-/*
- * Fonction pour le traitement de l'affichage selon le type d'équipement
- */
 $( ".eqLogicAttr[data-l1key=id]" ).change(function() {
 	if ( $( ".eqLogicAttr[data-l1key=id]" ).value() != "" ) {
 		jeedom.eqLogic.byId({
@@ -93,9 +85,7 @@ $('#sel_overlayTimeoutSelection').change(function(){
     $('#in_overlayTimeout').hide();
   }
 });
-/*
- * Fonction pour l'ajout de commande, appellé automatiquement par plugin.template
- */
+
 function addCmdToTable(_cmd) {
     if (!isset(_cmd)) {
         var _cmd = {configuration: {}};
