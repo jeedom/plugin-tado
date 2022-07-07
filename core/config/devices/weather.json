@@ -1,0 +1,47 @@
+{
+    "name":"Weather",
+    "eqLogicType":"zone",
+    "commands":[
+      {
+         "name":"Rafraichir",
+         "logicalId":"refresh",
+         "type":"action",
+         "subType":"other"
+      },
+      {
+         "name":"Température",
+         "logicalId":"temperature",
+         "type":"info",
+         "isHistorized":1,
+         "subType":"numeric",
+         "generic_type":"TEMPERATURE",
+         "unite":"°C"
+      },
+      {
+         "name":"Intensité Solaire",
+         "logicalId":"solarIntensity",
+         "type":"info",
+         "isHistorized":1,
+         "subType":"numeric",
+         "generic_type":"GENERIC",
+         "unite":"%",
+         "template":{
+            "dashboard":"core::line",
+            "mobile":"core::line"
+         }
+      },
+      {
+         "name":"Condition météo",
+         "logicalId":"weatherState",
+         "type":"info",
+         "subType":"string",
+         "isHistorized":1,
+         "isVisible":1,
+         "generic_type":"WEATHER_CONDITION",
+         "template":{
+            "dashboard":"core::line",
+            "mobile":"core::line"
+         }
+      }
+    ]
+ }

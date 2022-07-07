@@ -5,36 +5,6 @@ if (!isConnect('admin')) {
 $plugin = plugin::byId('tado');
 sendVarToJS('eqType', $plugin->getId());
 $eqLogics = eqLogic::byType($plugin->getId());
-$homes = array();
-$zones = array();
-$mobileDevices = array();
-$smartThermostats = array();
-$smartAircons = array();
-$smartValves = array();
-$temperatureSensors = array();
-$weathers = array();
-$devices = array();
-foreach ($eqLogics as $eqLogic) {
-	if ($eqLogic->getConfiguration('eqLogicType') == 'home') {
-		$homes[] = $eqLogic;
-	} elseif ($eqLogic->getConfiguration('eqLogicType') == 'zone') {
-		$zones[] = $eqLogic;
-	} elseif ($eqLogic->getConfiguration('eqLogicType') == 'mobileDevice') {
-		$mobileDevices[] = $eqLogic;
-	} elseif ($eqLogic->getConfiguration('eqLogicType') == 'smartThermostat') {
-		$smartThermostats[] = $eqLogic;
-	} elseif ($eqLogic->getConfiguration('eqLogicType') == 'smartAircon') {
-		$smartAircons[] = $eqLogic;
-	} elseif ($eqLogic->getConfiguration('eqLogicType') == 'smartValve') {
-		$smartValves[] = $eqLogic;
-	} elseif ($eqLogic->getConfiguration('eqLogicType') == 'temperatureSensor') {
-		$temperatureSensors[] = $eqLogic;
-	} elseif ($eqLogic->getConfiguration('eqLogicType') == 'device') {
-		$devices[] = $eqLogic;
-	} elseif ($eqLogic->getConfiguration('eqLogicType') == 'weather') {
-		$weathers[] = $eqLogic;
-	}
-}
 ?>
 <div class="row row-overflow">
 	<div class="col-xs-12 eqLogicThumbnailDisplay">
@@ -52,120 +22,30 @@ foreach ($eqLogics as $eqLogic) {
 			</div>
 		</div>
 		<?php
-		if (!empty($homes)) {
-			echo '<legend><i class="fas fa-table"></i> {{Homes}}</legend>';
-			echo '<div class="eqLogicThumbnailContainer">';
-			foreach ($homes as $eqLogic) {
-				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-				echo '<div class="eqLogicDisplayCard cursor ' . $opacity . '" data-eqLogic_id="' . $eqLogic->getId() . '">';
-				echo '<br>';
-				echo '<i class="fas fa-home"></i>';
-				echo '<br>';
-				echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
-				echo '</div>';
-			}
+		if (count($eqLogics) == 0) {
+			echo '<br><div class="text-center" style="font-size:1.2em;font-weight:bold;">{{Aucun équipement Tado trouvé, cliquer sur "Synchroniser" pour commencer}}</div>';
+		} else {
+			echo '<div class="input-group" style="margin:5px;">';
+			echo '<input class="form-control roundedLeft" placeholder="{{Rechercher}}" id="in_searchEqlogic">';
+			echo '<div class="input-group-btn">';
+			echo '<a id="bt_resetSearch" class="btn" style="width:30px"><i class="fas fa-times"></i></a>';
+			echo '<a class="btn roundedRight hidden" id="bt_pluginDisplayAsTable" data-coreSupport="1" data-state="0"><i class="fas fa-grip-lines"></i></a>';
 			echo '</div>';
-		}
-		if (!empty($zones)) {
-			echo '<legend><i class="fas fa-table"></i> {{Zones}}</legend>';
-			echo '<div class="eqLogicThumbnailContainer">';
-			foreach ($zones as $eqLogic) {
-				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-				echo '<div class="eqLogicDisplayCard cursor ' . $opacity . '" data-eqLogic_id="' . $eqLogic->getId() . '">';
-				echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
-				echo '<br>';
-				echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
-				echo '</div>';
-			}
 			echo '</div>';
-		}
-		if (!empty($mobileDevices)) {
-			echo '<legend><i class="fas fa-table"></i> {{Equipements mobiles}}</legend>';
 			echo '<div class="eqLogicThumbnailContainer">';
-			foreach ($mobileDevices as $eqLogic) {
+			foreach ($eqLogics as $eqLogic) {
 				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
 				echo '<div class="eqLogicDisplayCard cursor ' . $opacity . '" data-eqLogic_id="' . $eqLogic->getId() . '">';
-				echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
+				if ($eqLogic->getImage() !== false) {
+					echo '<img src="' . $eqLogic->getImage() . '"/>';
+				} else {
+					echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
+				}
 				echo '<br>';
 				echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
-				echo '</div>';
-			}
-			echo '</div>';
-		}
-		if (!empty($smartThermostats)) {
-			echo '<legend><i class="fas fa-table"></i> {{Thermostats intelligent}}</legend>';
-			echo '<div class="eqLogicThumbnailContainer">';
-			foreach ($smartThermostats as $eqLogic) {
-				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-				echo '<div class="eqLogicDisplayCard cursor ' . $opacity . '" data-eqLogic_id="' . $eqLogic->getId() . '">';
-				echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
-				echo '<br>';
-				echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
-				echo '</div>';
-			}
-			echo '</div>';
-		}
-		if (!empty($smartAircons)) {
-			echo '<legend><i class="fas fa-table"></i> {{Climatisations intelligentes}}</legend>';
-			echo '<div class="eqLogicThumbnailContainer">';
-			foreach ($smartAircons as $eqLogic) {
-				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-				echo '<div class="eqLogicDisplayCard cursor ' . $opacity . '" data-eqLogic_id="' . $eqLogic->getId() . '">';
-				echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
-				echo '<br>';
-				echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
-				echo '</div>';
-			}
-			echo '</div>';
-		}
-		if (!empty($smartValves)) {
-			echo '<legend><i class="fas fa-table"></i> {{Vannes intelligentes}}</legend>';
-			echo '<div class="eqLogicThumbnailContainer">';
-			foreach ($smartValves as $eqLogic) {
-				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-				echo '<div class="eqLogicDisplayCard cursor ' . $opacity . '" data-eqLogic_id="' . $eqLogic->getId() . '">';
-				echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
-				echo '<br>';
-				echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
-				echo '</div>';
-			}
-			echo '</div>';
-		}
-		if (!empty($temperatureSensors)) {
-			echo '<legend><i class="fas fa-table"></i> {{Capteurs de température}}</legend>';
-			echo '<div class="eqLogicThumbnailContainer">';
-			foreach ($temperatureSensors as $eqLogic) {
-				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-				echo '<div class="eqLogicDisplayCard cursor ' . $opacity . '" data-eqLogic_id="' . $eqLogic->getId() . '">';
-				echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
-				echo '<br>';
-				echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
-				echo '</div>';
-			}
-			echo '</div>';
-		}
-		if (!empty($devices)) {
-			echo '<legend><i class="fas fa-table"></i> {{Equipements}}</legend>';
-			echo '<div class="eqLogicThumbnailContainer">';
-			foreach ($devices as $eqLogic) {
-				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-				echo '<div class="eqLogicDisplayCard cursor ' . $opacity . '" data-eqLogic_id="' . $eqLogic->getId() . '">';
-				echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
-				echo '<br>';
-				echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
-				echo '</div>';
-			}
-			echo '</div>';
-		}
-		if (!empty($weathers)) {
-			echo '<legend><i class="fas fa-table"></i> {{Météo}}</legend>';
-			echo '<div class="eqLogicThumbnailContainer">';
-			foreach ($weathers as $eqLogic) {
-				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-				echo '<div class="eqLogicDisplayCard cursor ' . $opacity . '" data-eqLogic_id="' . $eqLogic->getId() . '">';
-				echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
-				echo '<br>';
-				echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
+				echo '<span class="hiddenAsCard displayTableRight hidden">';
+				echo ($eqLogic->getIsVisible() == 1) ? '<i class="fas fa-eye" title="{{Equipement visible}}"></i>' : '<i class="fas fa-eye-slash" title="{{Equipement non visible}}"></i>';
+				echo '</span>';
 				echo '</div>';
 			}
 			echo '</div>';

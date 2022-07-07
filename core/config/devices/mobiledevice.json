@@ -1,0 +1,47 @@
+{
+    "name":"Home",
+    "eqLogicType":"mobileDevice",
+    "commands":[
+       {
+          "name":"Rafraichir",
+          "logicalId":"refresh",
+          "type":"action",
+          "subType":"other"
+       },
+       {
+          "name":"A la maison",
+          "logicalId":"atHome",
+          "type":"info",
+          "isHistorized":1,
+          "subType":"binary"
+       },
+       {
+          "name":"Relèvement depuis la maison",
+          "logicalId":"bearingFromHome",
+          "type":"info",
+          "isHistorized":1,
+          "subType":"numeric",
+          "unite":"°",
+          "configuration":{
+             "minValue":0,
+             "maxValue":360
+          },
+          "template":{
+             "dashboard":"core::line",
+             "mobile":"core::line"
+          }
+       },
+       {
+          "name":"Distance depuis la maison",
+          "logicalId":"relativeDistanceFromHomeFence",
+          "type":"info",
+          "isHistorized":1,
+          "subType":"numeric",
+          "unite":"m",
+          "template":{
+             "dashboard":"core::line",
+             "mobile":"core::line"
+          }
+       }
+    ]
+ }

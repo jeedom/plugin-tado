@@ -1,0 +1,26 @@
+{
+    "name":"va02",
+    "eqLogicType":"device",
+    "configuration" : {
+        "battery_type" : "4x1.5V AA"   
+    },
+    "commands":[
+       {
+          "name":"Rafraichir",
+          "logicalId":"refresh",
+          "type":"action",
+          "subType":"other"
+       },
+       {
+          "name":"Connecté",
+          "logicalId":"connectionState",
+          "type":"info",
+          "isHistorized":1,
+          "subType":"binary",
+          "template":{
+             "dashboard":"core::line",
+             "mobile":"core::line"
+          }
+       }
+    ]
+ }

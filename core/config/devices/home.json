@@ -1,0 +1,43 @@
+{
+    "name":"Home",
+    "eqLogicType":"home",
+    "commands":[
+       {
+          "name":"Rafraichir",
+          "logicalId":"refresh",
+          "type":"action",
+          "subType":"other"
+       },
+       {
+          "name":"Presence",
+          "logicalId":"presence",
+          "type":"info",
+          "subType":"binary",
+          "isHistorized":1,
+          "isVisible":1,
+          "generic_type":"PRESENCE"
+       },
+       {
+          "name":"Home",
+          "logicalId":"home",
+          "type":"action",
+          "subType":"other",
+          "isVisible":1,
+          "generic_type":"ENERGY_OFF",
+          "display":{
+             "icon":"<i class=\"fas fa-home\"></i>"
+          }
+       },
+       {
+          "name":"Away",
+          "logicalId":"away",
+          "type":"action",
+          "subType":"other",
+          "isVisible":1,
+          "generic_type":"ENERGY_OFF",
+          "display":{
+             "icon":"<i class=\"icon jeedom-mouvement\"></i>"
+          }
+       }
+    ]
+ }

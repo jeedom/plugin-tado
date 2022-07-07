@@ -1,0 +1,23 @@
+{
+    "name":"bu01",
+    "eqLogicType":"device",
+    "commands":[
+       {
+          "name":"Rafraichir",
+          "logicalId":"refresh",
+          "type":"action",
+          "subType":"other"
+       },
+       {
+          "name":"Connecté",
+          "logicalId":"connectionState",
+          "type":"info",
+          "isHistorized":1,
+          "subType":"binary",
+          "template":{
+             "dashboard":"core::line",
+             "mobile":"core::line"
+          }
+       }
+    ]
+ }
