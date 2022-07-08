@@ -58,7 +58,8 @@ class tado extends eqLogic {
 					$eqLogic->setLogicalId($home->id . "_HOME");
 					$eqLogic->setConfiguration('homeId', $home->id);
 				}
-				$eqLogic->setConfiguration('device', "home");
+				$eqLogic->setConfiguration('eqLogicType', 'home');
+				$eqLogic->setConfiguration('device', 'home');
 				$eqLogic->save();
 				$eqLogic->syncData();
 
@@ -74,7 +75,8 @@ class tado extends eqLogic {
 					$eqLogic->setLogicalId($home->id . "_WEATHER");
 					$eqLogic->setConfiguration('homeId', $home->id);
 				}
-				$eqLogic->setConfiguration('device', "weather");
+				$eqLogic->setConfiguration('eqLogicType', 'weather');
+				$eqLogic->setConfiguration('device', 'weather');
 				$eqLogic->save();
 				$eqLogic->syncData();
 
@@ -98,6 +100,7 @@ class tado extends eqLogic {
 					foreach ($zone->devices as $device) {
 						$deviceList[] = array('deviceType' => $device->deviceType, 'shortSerialNo' => $device->shortSerialNo);
 					}
+					$eqLogic->setConfiguration('eqLogicType', 'zone');
 					$eqLogic->setConfiguration('devices', $deviceList);
 					$eqLogic->setConfiguration('capabilities', tado::getApiHandler($user)->getZoneCapabilities($home->id, $zone->id));
 					$eqLogic->save();
@@ -119,6 +122,7 @@ class tado extends eqLogic {
 						$eqLogic->setConfiguration('homeId', $home->id);
 						$eqLogic->setConfiguration('deviceId', $device->shortSerialNo);
 					}
+					$eqLogic->setConfiguration('eqLogicType', 'device');
 					$eqLogic->setConfiguration('device', $device->deviceType);
 					$eqLogic->setConfiguration('currentFwVersion', $device->currentFwVersion);
 					$eqLogic->setConfiguration('characteristics', $device->characteristics);
@@ -141,6 +145,7 @@ class tado extends eqLogic {
 						$eqLogic->setConfiguration('homeId', $home->id);
 						$eqLogic->setConfiguration('mobileDeviceId', $mobileDevice->id);
 					}
+					$eqLogic->setConfiguration('eqLogicType', 'mobileDevice');
 					$eqLogic->setConfiguration('device', 'mobileDevice');
 					$eqLogic->setConfiguration('deviceMetadata', $mobileDevice->deviceMetadata);
 					$eqLogic->save();
@@ -203,6 +208,11 @@ class tado extends eqLogic {
 			case 'home':
 				$homeState = tado::getApiHandler($this->getConfiguration('user'))->getHomeState($home_id);
 				$this->checkAndUpdateCmd('presence', ($homeState->presence == "HOME") ? true : false);
+				if ($homeState->presence == "AWAY" && $this->getConfiguration('presenceModeAssist') == 'yes') {
+					tado::getApiHandler($this->getConfiguration('user'))->updateHomePresence(json_encode(array('homePresence' => "HOME")), $home_id);
+				} elseif ($homeState->presence == "HOME" && $this->getConfiguration('presenceModeAssist') == 'yes') {
+					tado::getApiHandler($this->getConfiguration('user'))->updateHomePresence(json_encode(array('homePresence' => "AWAY")), $home_id);
+				}
 				break;
 			case 'weather':
 				$weather = tado::getApiHandler($this->getConfiguration('user'))->getHomeWeather($home_id);
@@ -212,7 +222,6 @@ class tado extends eqLogic {
 				break;
 			case 'zone':
 				$zoneState = tado::getApiHandler($this->getConfiguration('user'))->getZoneState($home_id, $this->getConfiguration('zoneId'));
-				log::add('tado', 'info', __METHOD__ . ' - zoneState : ' . json_encode($zoneState));
 				if (isset($zoneState->openWindowDetected) && $zoneState->openWindowDetected && $this->getConfiguration('openWindowDetectionAssist') == 'yes') {
 					tado::getApiHandler($this->getConfiguration('user'))->activateOpenWindow($home_id, $this->getConfiguration('zoneId'));
 				}
@@ -255,7 +264,7 @@ class tado extends eqLogic {
 				$this->checkAndUpdateCmd('bearingFromHome', $mobileDevice->location->bearingFromHome->degrees);
 				$this->checkAndUpdateCmd('relativeDistanceFromHomeFence', $mobileDevice->location->relativeDistanceFromHomeFence);
 				break;
-			case ('device'):
+			case 'device':
 				$device = tado::getApiHandler($this->getConfiguration('user'))->getDevice($this->getConfiguration('deviceId'));
 				$this->checkAndUpdateCmd('connectionState', $device->connectionState->value, date('Y-m-d H:i:s', strtotime($device->connectionState->timestamp)));
 				if (isset($device->batteryState)) {
@@ -283,7 +292,7 @@ class tado extends eqLogic {
 	}
 
 	public function postSave() {
-		if ($this->getConfiguration('applyDevice') != $this->getConfiguration('device')) {
+		if ($this->getConfiguration('applyDevice') != strtolower($this->getConfiguration('device'))) {
 			$this->applyModuleConfiguration();
 		}
 	}
