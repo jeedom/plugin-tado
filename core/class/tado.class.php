@@ -101,7 +101,6 @@ class tado extends eqLogic {
 					$eqLogic->setConfiguration('devices', $deviceList);
 					$eqLogic->setConfiguration('capabilities', tado::getApiHandler($user)->getZoneCapabilities($home->id, $zone->id));
 					$eqLogic->save();
-					$eqLogic->syncOpenWindowState($zone);
 					$eqLogic->syncData();
 				}
 
@@ -213,8 +212,6 @@ class tado extends eqLogic {
 				break;
 			case 'zone':
 				$zoneState = tado::getApiHandler($this->getConfiguration('user'))->getZoneState($home_id, $this->getConfiguration('zoneId'));
-				$zoneDetails = tado::getApiHandler($this->getConfiguration('user'))->getZoneDetails($home_id, $this->getConfiguration('zoneId'));
-				$this->syncOpenWindowState($zoneDetails);
 				log::add('tado', 'info', __METHOD__ . ' - zoneState : ' . json_encode($zoneState));
 				if (isset($zoneState->openWindowDetected) && $zoneState->openWindowDetected && $this->getConfiguration('openWindowDetectionAssist') == 'yes') {
 					tado::getApiHandler($this->getConfiguration('user'))->activateOpenWindow($home_id, $this->getConfiguration('zoneId'));
@@ -265,19 +262,6 @@ class tado extends eqLogic {
 					$this->batteryStatus(($device->batteryState == 'NORMAL') ? 100 : 20);
 				}
 				break;
-		}
-	}
-
-	public function syncOpenWindowState($zoneDetails) {
-		// Mise a jour du status de détection des fenêtres ouverte, au cas ou cela aurais été fait à partir de l'App Tado
-		if (!empty($zoneDetails->openWindowDetection) && json_encode($this->getConfiguration('openWindowDetection')) != json_encode($zoneDetails->openWindowDetection)) {
-			$this->setConfiguration('openWindowDetection', $zoneDetails->openWindowDetection);
-			if ($zoneDetails->openWindowDetection->supported) {
-				$this->setConfiguration('openWindowDetectionEnabled', $zoneDetails->openWindowDetection->enabled ? "yes" : "no");
-				$this->setConfiguration('openWindowTimeout', $zoneDetails->openWindowDetection->timeoutInSeconds / 60);
-			}
-			$this->save();
-			log::add('tado', 'debug', __METHOD__ . ' - Open Window detection updated - ' . json_encode($zoneDetails->openWindowDetection));
 		}
 	}
 
