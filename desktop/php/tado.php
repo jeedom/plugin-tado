@@ -113,21 +113,19 @@ $eqLogics = eqLogic::byType($plugin->getId());
 										</div>
 									</div>
 								</div>
-								<div id="homeConfig">
-									<div id="presenceConfig">
-										<legend><i class="fas fa-running"></i> {{Présence}}</legend>
-										<div class="form-group">
-											<label class="col-sm-3 control-label">{{Auto assist présence}}</label>
-											<div class="col-sm-3">
-												<select id="sel_openWindowDetectionAssist" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="presenceModeAssist">
-													<option value="no">{{Désactivé}}</option>
-													<option value="yes">{{Activé}}</option>
-												</select>
-											</div>
+								<div class="eqLogicType home">
+									<legend><i class="fas fa-running"></i> {{Présence}}</legend>
+									<div class="form-group">
+										<label class="col-sm-3 control-label">{{Auto assist présence}}</label>
+										<div class="col-sm-3">
+											<select id="sel_openWindowDetectionAssist" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="presenceModeAssist">
+												<option value="no">{{Désactivé}}</option>
+												<option value="yes">{{Activé}}</option>
+											</select>
 										</div>
 									</div>
 								</div>
-								<div id="zoneConfig">
+								<div class="eqLogicType zone">
 									<div id="overlayTimeoutConfig">
 										<legend><i class="fas fa-clock"></i> {{Timeout}}</legend>
 										<div class="form-group">
@@ -170,19 +168,25 @@ $eqLogics = eqLogic::byType($plugin->getId());
 										<img name="icon_visu" src="<?= $plugin->getPathImgIcon(); ?>" style="max-width:160px;" id="img_device" />
 									</div>
 								</div>
-								<div class="form-group">
+								<div class="form-group eqLogicType device zone">
+									<label class="col-sm-3 control-label">{{Equipement}}</label>
+									<div class="col-sm-6">
+										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="eqLogicType"></span>
+									</div>
+								</div>
+								<div class="form-group eqLogicType device zone">
 									<label class="col-sm-3 control-label">{{Type}}</label>
 									<div class="col-sm-6">
 										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="device"></span>
 									</div>
 								</div>
-								<div class="form-group">
+								<div class="form-group eqLogicType device">
 									<label class="col-sm-3 control-label">{{ID}}</label>
 									<div class="col-sm-6">
 										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="deviceId"></span>
 									</div>
 								</div>
-								<div class="form-group">
+								<div class="form-group eqLogicType device">
 									<label class="col-sm-3 control-label">{{Firmware}}</label>
 									<div class="col-sm-6">
 										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="currentFwVersion"></span>
@@ -198,11 +202,13 @@ $eqLogics = eqLogic::byType($plugin->getId());
 				<table id="table_cmd" class="table table-bordered table-condensed">
 					<thead>
 						<tr>
-							<th style="width: 150px;"> ID</th>
-							<th style="width: 400px;">{{Nom}}</th>
+							<th>{{Id}}</th>
+							<th>{{Nom}}</th>
+							<th>{{Type}}</th>
+							<th>{{Logical ID}}</th>
+							<th>{{Options}}</th>
 							<th>{{Paramètres}}</th>
-							<th style="width: 300px;">{{Options}}</th>
-							<th style="width: 150px;">{{Action}}</th>
+							<th>{{Action}}</th>
 						</tr>
 					</thead>
 					<tbody>
