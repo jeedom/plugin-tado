@@ -168,16 +168,22 @@ $eqLogics = eqLogic::byType($plugin->getId());
 										<img name="icon_visu" src="<?= $plugin->getPathImgIcon(); ?>" style="max-width:160px;" id="img_device" />
 									</div>
 								</div>
-								<div class="form-group eqLogicType device zone">
+								<div class="form-group">
 									<label class="col-sm-3 control-label">{{Equipement}}</label>
 									<div class="col-sm-6">
 										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="eqLogicType"></span>
 									</div>
 								</div>
-								<div class="form-group eqLogicType device zone">
+								<div class="form-group">
 									<label class="col-sm-3 control-label">{{Type}}</label>
 									<div class="col-sm-6">
 										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="device"></span>
+									</div>
+								</div>
+								<div class="form-group eqLogicType device zone weather">
+									<label class="col-sm-3 control-label">{{Home ID}}</label>
+									<div class="col-sm-6">
+										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="homeId"></span>
 									</div>
 								</div>
 								<div class="form-group eqLogicType device">
@@ -186,13 +192,48 @@ $eqLogics = eqLogic::byType($plugin->getId());
 										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="deviceId"></span>
 									</div>
 								</div>
+								<div class="form-group eqLogicType zone">
+									<label class="col-sm-3 control-label">{{Zone ID}}</label>
+									<div class="col-sm-6">
+										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="zoneId"></span>
+									</div>
+								</div>
 								<div class="form-group eqLogicType device">
 									<label class="col-sm-3 control-label">{{Firmware}}</label>
 									<div class="col-sm-6">
 										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="currentFwVersion"></span>
 									</div>
 								</div>
-
+								<div class="form-group eqLogicType mobileDevice">
+									<label class="col-sm-3 control-label">{{Platforme}}</label>
+									<div class="col-sm-6">
+										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="deviceMetadata" data-l3key="platform"></span>
+									</div>
+								</div>
+								<div class="form-group eqLogicType mobileDevice">
+									<label class="col-sm-3 control-label">{{OS version}}</label>
+									<div class="col-sm-6">
+										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="deviceMetadata" data-l3key="osVersion"></span>
+									</div>
+								</div>
+								<div class="form-group eqLogicType mobileDevice">
+									<label class="col-sm-3 control-label">{{Modèle}}</label>
+									<div class="col-sm-6">
+										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="deviceMetadata" data-l3key="model"></span>
+									</div>
+								</div>
+								<div class="form-group eqLogicType zone">
+									<label class="col-sm-3 control-label">{{Détection fenetre ouverte}}</label>
+									<div class="col-sm-6">
+										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="openWindowDetection" data-l3key="supported"></span>
+									</div>
+								</div>
+								<div class="form-group eqLogicType zone">
+									<label class="col-sm-3 control-label">{{Timeout fenetre ouverte}}</label>
+									<div class="col-sm-6">
+										<span class="eqLogicAttr label label-info" style="font-size:1em;" data-l1key="configuration" data-l2key="openWindowTimeout"></span>
+									</div>
+								</div>
 							</fieldset>
 						</form>
 					</div>
