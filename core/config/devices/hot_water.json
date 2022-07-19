@@ -14,7 +14,7 @@
           "type":"action",
           "subType":"slider",
           "isVisible":1,
-          "value":"targetTemperature",
+          "value":"Consigne de température",
           "generic_type":"THERMOSTAT_SET_SETPOINT",
           "template":{
              "dashboard":"core::button",

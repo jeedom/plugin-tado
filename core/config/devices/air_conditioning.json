@@ -14,7 +14,7 @@
           "type":"action",
           "subType":"other",
           "isVisible":1,
-          "value":"power",
+          "value":"Etat",
           "template":{
              "dashboard":"core::toggleLine",
              "mobile":"core::toggleLine"
@@ -26,7 +26,7 @@
           "type":"action",
           "subType":"other",
           "isVisible":1,
-          "value":"power",
+          "value":"Etat",
           "template":{
              "dashboard":"core::toggleLine",
              "mobile":"core::toggleLine"
@@ -38,7 +38,7 @@
           "type":"action",
           "subType":"slider",
           "isVisible":1,
-          "value":"targetTemperature",
+          "value":"Consigne de température",
           "generic_type":"THERMOSTAT_SET_SETPOINT",
           "template":{
              "dashboard":"core::button",
@@ -99,7 +99,7 @@
           "type":"action",
           "subType":"select",
           "isVisible":1,
-          "value":"acMode",
+          "value":"Etat mode de climatisation",
           "configuration":{
              "listValue":"COOL|Cool;DRY|Dry;FAN|Fan;AUTO|Auto;HEAT|Heat"
           }
@@ -118,7 +118,7 @@
           "type":"action",
           "subType":"select",
           "isVisible":1,
-          "value":"acFanLevel",
+          "value":"Etat ventilation",
           "configuration":{
              "listValue":"AUTO|Auto;LEVEL1|Vitesse 1;LEVEL2|Vitesse 2;LEVEL3|Vitesse 3;LEVEL4|Vitesse 4"
           }
@@ -136,7 +136,7 @@
           "logicalId":"acVerticalSwingOn",
           "type":"action",
           "subType":"other",
-          "value":"acVerticalSwing",
+          "value":"Oscillation",
           "isVisible":1,
           "template":{
              "dashboard":"core::toggleLine",
@@ -148,7 +148,7 @@
           "logicalId":"acVerticalSwingOff",
           "type":"action",
           "subType":"other",
-          "value":"acVerticalSwing",
+          "value":"Oscillation",
           "isVisible":1,
           "template":{
              "dashboard":"core::toggleLine",

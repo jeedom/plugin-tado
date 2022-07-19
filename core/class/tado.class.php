@@ -53,7 +53,7 @@ class tado extends eqLogic {
 					$eqLogic->setIsEnable(1);
 					$eqLogic->setConfiguration('user', $user);
 					$eqLogic->setName($home->name);
-					$eqLogic->setdevice_name('tado');
+					$eqLogic->setEqType_name('tado');
 					$eqLogic->setCategory('heating', 1);
 					$eqLogic->setLogicalId($home->id . "_HOME");
 					$eqLogic->setConfiguration('homeId', $home->id);
@@ -70,7 +70,7 @@ class tado extends eqLogic {
 					$eqLogic->setIsEnable(1);
 					$eqLogic->setConfiguration('user', $user);
 					$eqLogic->setName("Météo - $home->name");
-					$eqLogic->setdevice_name('tado');
+					$eqLogic->setEqType_name('tado');
 					$eqLogic->setCategory('heating', 1);
 					$eqLogic->setLogicalId($home->id . "_WEATHER");
 					$eqLogic->setConfiguration('homeId', $home->id);
@@ -89,7 +89,7 @@ class tado extends eqLogic {
 						$eqLogic->setIsEnable(1);
 						$eqLogic->setConfiguration('user', $user);
 						$eqLogic->setName("$zone->name - $home->name");
-						$eqLogic->setdevice_name('tado');
+						$eqLogic->setEqType_name('tado');
 						$eqLogic->setCategory('heating', 1);
 						$eqLogic->setLogicalId($home->id . "_Z" . $zone->id);
 						$eqLogic->setConfiguration('homeId', $home->id);
@@ -116,7 +116,7 @@ class tado extends eqLogic {
 						$eqLogic->setIsEnable(1);
 						$eqLogic->setConfiguration('user', $user);
 						$eqLogic->setName("$device->shortSerialNo - $home->name");
-						$eqLogic->setdevice_name('tado');
+						$eqLogic->setEqType_name('tado');
 						$eqLogic->setCategory('heating', 1);
 						$eqLogic->setLogicalId($home->id . "_" . $device->shortSerialNo);
 						$eqLogic->setConfiguration('homeId', $home->id);
@@ -139,7 +139,7 @@ class tado extends eqLogic {
 						$eqLogic->setIsEnable(1);
 						$eqLogic->setConfiguration('user', $user);
 						$eqLogic->setName("$mobileDevice->name - $home->name");
-						$eqLogic->setdevice_name('tado');
+						$eqLogic->setEqType_name('tado');
 						$eqLogic->setCategory('heating', 1);
 						$eqLogic->setLogicalId($home->id . "_MB" . $mobileDevice->id);
 						$eqLogic->setConfiguration('homeId', $home->id);
@@ -187,6 +187,17 @@ class tado extends eqLogic {
 				return $return[$_device];
 			}
 			return array();
+		}
+		return $return;
+	}
+
+	public static function byUser($_tado_user = '', $_onlyEnable = false) {
+		$eqLogics = eqLogic::byType('tado', $_onlyEnable);
+		$return = array();
+		foreach ($eqLogics as $eqLogic) {
+			if ($eqLogic->getConfiguration('user') == $_tado_user) {
+				$return[] = $eqLogic;
+			}
 		}
 		return $return;
 	}
