@@ -14,7 +14,7 @@
           "type":"action",
           "subType":"other",
           "isVisible":1,
-          "value":"power",
+          "value":"Etat",
           "template":{
              "dashboard":"core::toggleLine",
              "mobile":"core::toggleLine"
@@ -26,7 +26,7 @@
           "type":"action",
           "subType":"other",
           "isVisible":1,
-          "value":"power",
+          "value":"Etat",
           "template":{
              "dashboard":"core::toggleLine",
              "mobile":"core::toggleLine"
@@ -38,7 +38,7 @@
           "type":"action",
           "subType":"slider",
           "isVisible":1,
-          "value":"targetTemperature",
+          "value":"Consigne de température",
           "generic_type":"THERMOSTAT_SET_SETPOINT",
           "template":{
              "dashboard":"core::button",
