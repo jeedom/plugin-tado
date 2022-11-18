@@ -155,6 +155,18 @@
           }
        },
        {
+         "name":"Puissance",
+         "logicalId":"heatingPower",
+         "type":"info",
+         "subType":"numeric",
+         "isHistorized":1,
+         "isVisible":1,
+         "template":{
+            "dashboard":"core::line",
+            "mobile":"core::line"
+         }
+       },
+       {
           "name":"Commande brute",
           "logicalId":"rawSet",
           "type":"action",
