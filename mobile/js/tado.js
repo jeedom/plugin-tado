@@ -31,8 +31,8 @@
 */
 
 function initTadoTado() {
-	if(typeof setBackgroundImage == 'function'){
-	  setBackgroundImage('plugins/tado/core/img/panel.jpg');
+	if(typeof jeedomUtils.setBackgroundImage == 'function'){
+		jeedomUtils.setBackgroundImage('plugins/tado/core/img/panel.jpg');
 	}
 	$.showLoading();
 	$.ajax({
