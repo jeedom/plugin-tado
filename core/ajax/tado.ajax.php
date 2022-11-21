@@ -74,6 +74,18 @@ try {
 		}
 	}
 
+	if (init('action') == 'gettado') {
+		$return = array();
+		$return['eqLogics'] = array();
+		foreach (tado::byType('tado') as $tado) {
+			if ($tado->getConfiguration('eqLogicType') != 'zone' || $tado->getConfiguration('device') == 'HOT_WATER') {
+				continue;
+			}
+			$return['eqLogics'][] = $tado->toHtml(init('version'));
+		}
+		ajax::success($return);
+	}
+
 
 	throw new Exception(__('Aucune méthode correspondante à : ', __FILE__) . init('action'));
 	/*     * *********Catch exeption*************** */
