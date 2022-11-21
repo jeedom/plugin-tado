@@ -340,6 +340,16 @@ class tadoCmd extends cmd {
 
 	/*     * *********************Methode d'instance************************* */
 
+	public function formatValueWidget($_value) {
+		if ($this->getLogicalId() == 'heatingPower') {
+			if ($_value > 0) {
+				return '<span class="icon_red">' . $_value . '<span>';
+			}
+			return $_value;
+		}
+		return $_value;
+	}
+
 	public function execute($_options = array()) {
 		$eqLogic = $this->getEqLogic();
 		if ($this->getLogicalId() == 'refresh') {
