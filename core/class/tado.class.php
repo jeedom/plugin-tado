@@ -271,9 +271,11 @@ class tado extends eqLogic {
 				break;
 			case 'mobileDevice':
 				$mobileDevice = tado::getApiHandler($this->getConfiguration('user'))->getMobileDevice($home_id, $this->getConfiguration('mobileDeviceId'));
-				$this->checkAndUpdateCmd('atHome', $mobileDevice->location->atHome);
-				$this->checkAndUpdateCmd('bearingFromHome', $mobileDevice->location->bearingFromHome->degrees);
-				$this->checkAndUpdateCmd('relativeDistanceFromHomeFence', $mobileDevice->location->relativeDistanceFromHomeFence);
+				if (isset($mobileDevice->location)) {
+					$this->checkAndUpdateCmd('bearingFromHome', $mobileDevice->location->bearingFromHome->degrees);
+					$this->checkAndUpdateCmd('atHome', $mobileDevice->location->atHome);
+					$this->checkAndUpdateCmd('relativeDistanceFromHomeFence', $mobileDevice->location->relativeDistanceFromHomeFence);
+				}
 				break;
 			case 'device':
 				$device = tado::getApiHandler($this->getConfiguration('user'))->getDevice($this->getConfiguration('deviceId'));
@@ -421,10 +423,12 @@ class tadoCmd extends cmd {
 					$setting['verticalSwing'] = 'OFF';
 				}
 			}
-			if ($setting['mode'] == 'DRY') {
-				unset($setting['fanLevel']);
-			} elseif ($setting['mode'] == 'FAN') {
-				unset($setting['temperature']);
+			if (isset($setting['mode'])) {
+				if ($setting['mode'] == 'DRY') {
+					unset($setting['fanLevel']);
+				} elseif ($setting['mode'] == 'FAN') {
+					unset($setting['temperature']);
+				}
 			}
 		}
 		$termination = array('typeSkillBasedApp' => 'NEXT_TIME_BLOCK');
