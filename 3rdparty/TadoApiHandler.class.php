@@ -50,7 +50,7 @@ class TadoApiHandler {
 		if ( is_callable( array( $client = $this->getApiClient(), $name ) ) ) {
 			try {
 				$payload = (object) call_user_func_array( array( $client, $name ), $arguments );
-				log::add('tado', 'debug', 'HomeApi->' . $name . '(' . implode($arguments ,',') . '): ' . json_encode($payload));
+				log::add('tado', 'debug', 'HomeApi->' . $name . '(' . json_encode($arguments) . '): ' . json_encode($payload));
 				return $payload;
 			} catch (Exception $e) {
 				if ( $name == 'getZoneOverlay' && $e->getCode() == 404 ) {
