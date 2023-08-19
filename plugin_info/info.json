@@ -6,7 +6,7 @@
 	"author" : "F. Vernat",
 	"require" : "3.2",
 	"category" : "wellness",
-	"hasDependency" : false,
+	"hasDependency" : true,
 	"hasOwnDeamon" : false,
 	"maxDependancyInstallTime" : 0,
 	"changelog" : "https://rosnoun.github.io/jeedom-plugins-docs/tado/#language#/changelog",

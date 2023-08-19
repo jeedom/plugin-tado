@@ -1,0 +1,11 @@
+{
+  "require": {
+    "league/oauth2-client":"*",
+    "guzzlehttp/psr7":"1.9.0"
+  },
+  "config": {
+      "allow-plugins": {
+          "php-http/discovery": true
+      }
+  }
+}
